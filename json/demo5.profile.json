@@ -1,0 +1,119 @@
+{
+  "conf_players": [
+    [
+      "player1",
+      "123456"
+    ],
+    [
+      "player2",
+      "123456"
+    ],
+    [
+      "player3",
+      "123456"
+    ],
+    [
+      "player4",
+      "123456"
+    ],
+    [
+      "player5",
+      "123456"
+    ],
+    [
+      "player6",
+      "123456"
+    ],
+    [
+      "player7",
+      "123456"
+    ],
+    [
+      "player8",
+      "123456"
+    ]
+  ],
+  "conf_eid": "Demo-5-Mutualism",
+  "conf_round": 5,
+  "conf_K": 5,
+  "conf_boundary": 1,
+  "conf_ini_A": 10,
+  "conf_ini_B": 10,
+  "conf_viewable": 1,
+  "conf_sec_A": 2,
+  "conf_sec_B": 2,
+  "conf_chat_emoji": 0,
+  "conf_chat_text": 0,
+  "conf_chat_range": 0,
+  "conf_chat_limit": [],
+  "conf_instruction_full": "<p>In this demo, we will illustrate how to&nbsp;perform two-resource and multi-players common pool resource game in EPIC. The demo describes two&nbsp;reciprocal&nbsp;resources.</p>\n",
+  "conf_instruction_concise": "You should select resource tokens to harvest by clicking it at right grid. The grey tokens indicate the resource that have been harvested by you or the other players.",
+  "conf_survey_questions": [
+    {
+      "type": 1,
+      "subject": "<p>Question 1. What&#39;s your major?</p>\n",
+      "options": [
+        "Science",
+        "Engineering",
+        "Agronomy",
+        "Medicine",
+        "Other"
+      ],
+      "answer": 0
+    },
+    {
+      "type": 0,
+      "subject": "<p>Question 1. Please select the right result of below expression:</p>\n\n<p><span class=\"math-tex\">\\(x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}\\)</span></p>\n",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": -1
+    }
+  ],
+  "conf_instruction_duration": 10,
+  "conf_test_duration": 10,
+  "conf_com_duration": 10,
+  "conf_decision_duration": 10,
+  "conf_punish_duration": 10,
+  "conf_disp_duration": 10,
+  "conf_ques_duration": 10,
+  "conf_dyn_A_neighbor": "0-1",
+  "conf_dyn_B_neighbor": "0-1",
+  "conf_dyn_rules": [
+    [
+      [
+        1,
+        9,
+        0,
+        9,
+        "1-pow((1-0.5),a)*pow((1-0.1),b)"
+      ]
+    ],
+    [],
+    [
+      [
+        0,
+        9,
+        1,
+        9,
+        "1-pow((1-0.6),b)*pow((1-0.05),a)"
+      ]
+    ],
+    []
+  ],
+  "conf_dyn_update": 1,
+  "conf_dyn_coexist": 1,
+  "conf_dyn_A_win": 0.6,
+  "conf_payoff_unit": "USD",
+  "conf_payoff_appearance": 50,
+  "conf_payoff_a_price": 0.2,
+  "conf_payoff_b_price": 0.2,
+  "conf_punish_type": 1,
+  "conf_punish_rate_AA": 1.1,
+  "conf_punish_rate_AB": 1.2,
+  "conf_punish_rate_BA": 1.3,
+  "conf_punish_rate_BB": 1
+}

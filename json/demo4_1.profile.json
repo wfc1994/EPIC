@@ -1,0 +1,135 @@
+{
+  "conf_players": [
+    [
+      "player1",
+      "123456"
+    ],
+    [
+      "player2",
+      "123456"
+    ],
+    [
+      "player3",
+      "123456"
+    ],
+    [
+      "player4",
+      "123456"
+    ],
+    [
+      "player5",
+      "123456"
+    ],
+    [
+      "player6",
+      "123456"
+    ],
+    [
+      "player7",
+      "123456"
+    ],
+    [
+      "player8",
+      "123456"
+    ]
+  ],
+  "conf_eid": "Demo-4-Prey-Predator",
+  "conf_round": 5,
+  "conf_K": 5,
+  "conf_boundary": 1,
+  "conf_ini_A": 10,
+  "conf_ini_B": 10,
+  "conf_viewable": 1,
+  "conf_sec_A": 2,
+  "conf_sec_B": 2,
+  "conf_chat_emoji": 1,
+  "conf_chat_text": 0,
+  "conf_chat_range": 1,
+  "conf_chat_limit": [],
+  "conf_instruction_full": "<p>在本演示中，我们将演示如何在EPIC中执行双资源和多玩家公共资源池游戏。 在这个演示中，资源A扮演猎物的角色，资源B扮演捕食者的角色。</p>\n",
+  "conf_instruction_concise": "您应该通过在右侧网格中单击来选择资源令牌进行收获。 灰色标记表示您或其他玩家收获的资源。",
+  "conf_survey_questions": [
+    {
+      "type": 1,
+      "subject": "<p>Question 1. What&#39;s your major?</p>\n",
+      "options": [
+        "Science",
+        "Engineering",
+        "Agronomy",
+        "Medicine",
+        "Other"
+      ],
+      "answer": 0
+    },
+    {
+      "type": 0,
+      "subject": "<p>Question 1. Please select the right result of below expression:</p>\n\n<p><span class=\"math-tex\">\\(x = {-b \\pm \\sqrt{b^2-4ac} \\over 2a}\\)</span></p>\n",
+      "options": [
+        "1",
+        "2",
+        "3",
+        "4"
+      ],
+      "answer": -1
+    }
+  ],
+  "conf_instruction_duration": 30,
+  "conf_test_duration": 30,
+  "conf_com_duration": 30,
+  "conf_decision_duration": 30,
+  "conf_punish_duration": 30,
+  "conf_disp_duration": 30,
+  "conf_ques_duration": 30,
+  "conf_dyn_A_neighbor": "0-1",
+  "conf_dyn_B_neighbor": "0-1",
+  "conf_dyn_rules": [
+    [
+      [
+        1,
+        9,
+        0,
+        9,
+        "1-pow((1-0.5),a)"
+      ]
+    ],
+    [
+      [
+        0,
+        9,
+        0,
+        9,
+        "0.1*b"
+      ]
+    ],
+    [
+      [
+        0,
+        9,
+        1,
+        9,
+        "1-pow((1-0.3),b)"
+      ]
+    ],
+    [
+      [
+        0,
+        9,
+        0,
+        9,
+        "1-0.1*a"
+      ]
+    ]
+  ],
+  "conf_dyn_update": 0,
+  "conf_dyn_coexist": 1,
+  "conf_dyn_A_win": 0.6,
+  "conf_payoff_unit": "USD",
+  "conf_payoff_appearance": 50,
+  "conf_payoff_a_price": 0.2,
+  "conf_payoff_b_price": 0.5,
+  "conf_punish_type": 2,
+  "conf_punish_rate_AA": 1,
+  "conf_punish_rate_AB": 1,
+  "conf_punish_rate_BA": 1,
+  "conf_punish_rate_BB": 1
+}
