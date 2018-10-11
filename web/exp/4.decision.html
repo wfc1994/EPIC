@@ -1,0 +1,304 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><h1>决策 (<span id="curr_round"></span>/<span id="total_round"></span>)</h1></div>
+        <div class="col-md-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><p>玩家来到决策阶段，这个阶段是行为实验的核心。玩家应该通过在图形界面中选择资源令牌（通过鼠标点击）做出自己的决定以收获个人利益。为了反映资源的竞争性利用，玩家可以观察其他玩家的实时决策。需要注意的是，自己收获对应角色的资源，不能收获空白和已收获的资源。玩家可以点击“做决策”按钮提交数据，也可以等待计时结束自动提交。</p></div>
+        <div class="col-md-2"></div>
+    </div>
+    <hr>
+</div>
+<div class="row">
+    <div class="col-md-2"/>
+    <div class="col-md-8">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <p class="text-justify" id="inst_conc"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <p class="text-center">
+                            <strong>上一轮收获</strong>:
+                            <label class="label label-primary">A <span id="last_A"></span></label>;
+                            <label class="label label-danger">B <span id="last_B"></span></label>
+                            &nbsp;&nbsp;&nbsp;
+                            <strong>我的总结</strong>:
+                            <label class="label label-default">收获 <span id="total_harvest"></span></label>;
+                            <label class="label label-default">再分配 <span id="pure_income"></span></label>
+                        </p>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <p class="text-center">
+                            收获资源: <span id="hnum" class="label label-default">0</span>; 剩余资源: <span id="rnum" class="label label-default">0</span>.
+                        </p>
+                        <hr/>
+                        <center>
+                            <table id="board" class="lattice">
+                            </table>
+                            <br/>
+                            <button type="button" class="btn btn-default btn-sm" onclick="decide(); return false;">做决策</button>
+                        </center>
+                        <!--
+                        <hr/>
+                        <p>
+                            <img src="/images/R10.png" class="chess"> Living A;
+                            <img src="/images/R20.png" class="chess"> Harvested A;
+                            <img src="/images/R01.png" class="chess"> Living B;
+                            <img src="/images/R02.png" class="chess"> Harvested B;
+                        </p>
+                        -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2"/>
+</div>
+<script>
+    var hnum = 0;
+    var rnum = 0;
+
+    $(document).ready(function() {
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 8},
+            success: function (json) {
+                //var rd = parseInt(localStorage.d_current);
+                var rd = parseInt(json.current);
+                //var iniPattern = JSON.parse(localStorage.d_initial);
+                var iniPattern = json.initial;
+                //var patterns = JSON.parse(d_pattern);
+                var patterns = JSON.parse(json.d_pattern);
+                //var myActions = JSON.parse(d_action);
+                var myActions = JSON.parse(json.d_action);
+                //var allPlayers = JSON.parse(localStorage.d_players);
+                var allPlayers = json.all_players;
+                var role = sessionStorage._role;
+                var AGrid;
+                var BGrid;
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+                var K = model.K;
+
+                $("#curr_round").text(rd + 1);
+                //$("#total_round").text(localStorage.d_round);
+                $("#total_round").text(json.round);
+
+                if (rd == 0) {
+                    AGrid = iniPattern[0];
+                    BGrid = iniPattern[1];
+                } else {
+                    AGrid = patterns[rd - 1][0];
+                    BGrid = patterns[rd - 1][1];
+                }
+
+                if (!myActions[rd]) {
+                    myActions[rd] = new Array(2);
+                    var currAction = new Array(K);
+                    for (var i = 0; i < K; i++) {
+                        currAction[i] = new Array(K);
+                        for (var j = 0; j < K; j++) {
+                            currAction[i][j] = 0;
+                        }
+                    }
+                    myActions[rd][0] = currAction;
+                    myActions[rd][1] = {};
+                    for (var i = 0; i < allPlayers.length; i++) {
+                        myActions[rd][1][allPlayers[i].code] = 0;
+                    }
+                    d_action = JSON.stringify(myActions);
+                    $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 18, action : d_action}, success: function (json) {}});
+                    console.log("dec1", d_action);
+                }
+
+                // 生成棋盘
+                for (var i = 0; i < K; i++) {
+                    var inner = '<tr class="lattice cell">';
+                    for (var j = 0; j < K; j++) {
+                        var cell = '<td class="lattice cell"><a id="' + i + '-' + j + '" onclick="act(' + i + ',' + j + ')"><img src="/images/R00.png" class="chess"></a></td>';
+                        inner += cell;
+                    }
+                    inner += "</tr>";
+                    $(inner).appendTo("#board");
+                }
+
+                // 放置资源
+                for (var i = 0; i < AGrid.length; i++) {
+                    if (AGrid[i][AGrid[i].length - 1] != 0) {
+                        var x = AGrid[i][0];
+                        var y = AGrid[i][1];
+                        $("a#" + x + "-" + y + "> img").attr("src", "/images/R10.png");
+                        if (role == "A")
+                            rnum++;
+                    }
+                }
+                for (var i = 0; i < BGrid.length; i++) {
+                    if (BGrid[i][BGrid[i].length - 1] != 0) {
+                        var x = BGrid[i][0];
+                        var y = BGrid[i][1];
+                        var imgname = $("a#" + x + "-" + y + "> img").attr("src");
+                        if (imgname[9] == '0')
+                            $("a#" + x + "-" + y + " > img").attr("src", "/images/R01.png");
+                        else
+                            $("a#" + x + "-" + y + " > img").attr("src", "/images/R11.png");
+                        if (role == "B")
+                            rnum++;
+                    }
+                }
+
+                //还原行为
+                for (var i = 0; i < K; i++) {
+                    for (var j = 0; j < K; j++) {
+                        if (myActions[rd][0][i][j] > 0) {
+                            hnum++;
+                            rnum--;
+                            var temp = $("a#" + i + "-" + j + " > img").attr("src");
+                            $("a#" + i + "-" + j + " > img").attr("src", replace(temp, sessionStorage._role));
+                        }
+                    }
+                }
+
+                $("#hnum").text("" + hnum);
+                $("#rnum").text("" + rnum);
+
+                // 简要介绍
+                $.getJSON("/servlet/waiting4main", {
+                    group: sessionStorage._group,
+                    code: sessionStorage._code,
+                    stage: 8
+                }, function (json, state) {
+                    $("#inst_conc").text(json.slide[0]);
+                });
+
+                if (rd > 0) {
+                    var hA = 0;
+                    for (var i = 0; i < patterns[rd - 1][0].length; i++) {
+                        hA += (patterns[rd - 1][0][i][2] - patterns[rd - 1][0][i][3]);
+                    }
+                    var hB = 0;
+                    for (var i = 0; i < patterns[rd - 1][1].length; i++) {
+                        hB += (patterns[rd - 1][1][i][2] - patterns[rd - 1][1][i][3]);
+                    }
+                    var tH = 0, pi = 0;
+                    for (var t = 0; t < rd; t++) {
+                        tH += patterns[t][2][sessionStorage._code].income;
+                        pi += patterns[t][2][sessionStorage._code].redist;
+                    }
+                    $("#last_A").text(hA);
+                    $("#last_B").text(hB);
+                    $("#total_harvest").text(tH);
+                    $("#pure_income").text(pi);
+                }
+            }
+        });
+    });
+
+    function act(x, y) {
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 8},
+            success: function (json) {
+                //var rd = parseInt(localStorage.d_current);
+                var rd = parseInt(json.current);
+                var role = sessionStorage._role;
+                //var myActions = JSON.parse(d_action);
+                var myActions = JSON.parse(json.d_action);
+                var id = "a#" + x + "-" + y + " > img";
+                var img = $(id).attr("src");
+                if ((role == "A" && img[9] == "0") || (role == "B" && img[10] == "0"))
+                    return;
+                switch (myActions[rd][0][x][y]) {
+                    case 0:
+                        $(id).attr("src", replace(img, role));
+                        myActions[rd][0][x][y] = 1;
+                        var d_action = JSON.stringify(myActions);
+                        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 18, action : d_action}, success: function (json) {}});
+                        console.log("dec2", d_action);
+                        hnum++;
+                        rnum--;
+                        break;
+                    case 1:
+
+                        break;
+                }
+                $("#hnum").text("" + hnum);
+                $("#rnum").text("" + rnum);
+            }
+        });
+    }
+
+    function replace(img, role) {
+        var p = -1;
+        if (role == "A")
+            p = 9;
+        else
+            p = 10;
+        if (img[p] == "1")
+            img = changeChar(img, p, "2");
+        else if (img[p] == "2")
+            img = changeChar(img, p, "1");
+        return img;
+    }
+
+    function changeChar(str, p, c){
+        return str.substring(0, p) + c + str.substring(p + 1, str.length);
+    }
+
+    function decide() {
+        _stop = true;
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

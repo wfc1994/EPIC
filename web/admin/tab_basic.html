@@ -1,0 +1,206 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify">
+            <strong>Game model.</strong> EPIC extends the standard round-based CPR game into a scenario with two resources (A and B). <strong>(1)</strong> The group of players is divided into two sectors. Players in sector A harvest resource A, and players in sector B harvest resource B. <strong>(2)</strong> The two resources are interdependent, i.e., one resource can affect the other’s reproduction and death. <strong>(3)</strong> Players in section A cannot affect resource B, and vice versa. You can control whether to allow players in different departments to see each other's decision-making process. <strong>Important, you should provide an unique experiment ID for data storage.</strong>
+        </p>
+        <p class="text-center"><img src="/images/guide1.png" width="200"></p>
+        <p class="text-justify mathjax">
+            <strong>Ecosystem model.</strong> EPIC uses a highly customizable cellular automaton model to simulate the ecological dynamics of SESs with two resources (A and B) and to interact with players. The model consists of a two-dimensional $K*K$ regular grid of cells ($K$ is finite), each in one of 4 possible states, including empty ($S_e$), occupied by an A-token ($S_a$), occupied by a B-token ($S_b$), and occupied by both an A-token and a B-token ($S_{ab}$). The model uses a range of distance $[d_0 d_1]$ to define the neighbors of a cell. The distance $d$ between two cells is the maximal interval in the one dimension (row or column) of the grid according to the type of boundary (fixed or cyclic). An initial state (round t = 0) is selected by assigning given numbers of A- and B-tokens randomly in the grid.
+        </p>
+    </div>
+    <div class="col-md-8">
+        <div class="conf-content text-left">
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Experiment ID</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="b_eid" type="text" class="form-control input-sm" size="40" value="My-Experiment"/>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Round</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="b_round" type="number" class="form-control input-sm" size="10" value="20"/>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Sector A members</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="sec_A" type="number" class="input-sm form-control" size="10" value="1" min="0"/>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Sector B members</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="sec_B" type="number" class="input-sm form-control" size="10" value="1" min="0"/>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Mutually viewable</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <select id="viewable" class="form-control input-sm">
+                        <option value="0" selected>NO</option>
+                        <option value="1">YES</option>
+                    </select>
+                </div>
+            </div>
+            <hr/>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Space size (K)</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="s_size" type="number" class="form-control input-sm" size="10" value="10"/>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Space boundary</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <select id="s_boundary" class="form-control input-sm">
+                        <option value="0" selected>fixed</option>
+                        <option value="1">cyclic</option>
+                    </select>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Initial resource A</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="ini_A" type="number" class="input-sm form-control" size="10" value="1" min="0"/>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Initial resource B</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="ini_B" type="number" class="input-sm form-control" size="10" value="1" min="0"/>
+                </div>
+            </div>
+        </div>
+        <p class="text-left">
+            <br>
+            <button class="btn btn-default btn-sm" onclick="set_basic(); return false;">Save</button>
+        </p>
+    </div>
+</div>
+
+<script>
+    //通过tab_import将json文件中的数据读取并放入到basic页面中
+    $(document).ready(function () {
+        if (!localStorage.conf_K || !localStorage.conf_boundary)
+            return;
+        var K = JSON.parse(localStorage.conf_K);
+        var B = JSON.parse(localStorage.conf_boundary);
+        $("#s_size").val(K);
+        $("#s_boundary").val(B);
+
+        if (!!localStorage.conf_ini_A) {
+            $("#ini_A").val(JSON.parse(localStorage.conf_ini_A));
+        }
+
+        if (!!localStorage.conf_ini_B) {
+            $("#ini_B").val(JSON.parse(localStorage.conf_ini_B));
+        }
+
+        if (!!localStorage.conf_round) {
+            $("#b_round").val(JSON.parse(localStorage.conf_round));
+        }
+
+        if (!!localStorage.conf_eid) {
+            $("#b_eid").val(JSON.parse(localStorage.conf_eid));
+        }
+
+        if (!!localStorage.conf_viewable) {
+            $("#viewable").val(JSON.parse(localStorage.conf_viewable));
+        }
+
+        if (!!localStorage.conf_sec_A) {
+            $("#sec_A").val(JSON.parse(localStorage.conf_sec_A));
+        }
+
+        if (!!localStorage.conf_sec_B) {
+            $("#sec_B").val(JSON.parse(localStorage.conf_sec_B));
+        }
+    });
+
+    //basic中的Save保存方法，解析为字符串保存到localStorage中
+    function set_basic() {
+        var eid = $("#b_eid").val().trim();
+        if (eid.length <= 0) {
+            alert("Please provide a unique experiment ID!");
+            return;
+        }
+        localStorage.conf_eid = JSON.stringify(eid);
+
+        var round = parseInt($("#b_round").val());
+        if (isNaN(round) || round < 0) {
+            alert("The round should be postive integer!");
+            return;
+        }
+        localStorage.conf_round = JSON.stringify(round);
+
+        var K = parseInt($("#s_size").val());
+        if (isNaN(K) || K < 0) {
+            alert("The space size should be postive integer!");
+            return;
+        }
+        var B = parseInt($("#s_boundary").val());
+        if (isNaN(B) || B < 0) {
+            alert("Please selecting space boudnary!");
+            return;
+        }
+        localStorage.conf_K = JSON.stringify(K);
+        localStorage.conf_boundary = JSON.stringify(B);
+
+        var ia = parseInt($("#ini_A").val());
+        if (isNaN(ia) || ia < 0 || ia > K*K) {
+            alert("Initial resource A should be postive integers < K*K");
+            return;
+        }
+        localStorage.conf_ini_A = JSON.stringify(ia);
+
+        var ib = parseInt($("#ini_B").val());
+        if (isNaN(ib) || ib < 0 || ib > K*K) {
+            alert("Initial resource B should be postive integers < K*K");
+            return;
+        }
+        localStorage.conf_ini_B = JSON.stringify(ib);
+
+        var vable = parseInt($("#viewable").val());
+        localStorage.conf_viewable = JSON.stringify(vable);
+
+        var seca = parseInt($("#sec_A").val());
+        if (isNaN(seca) || seca < 0) {
+            alert("Section A should have non-negative members!");
+            return;
+        }
+        localStorage.conf_sec_A = JSON.stringify(seca);
+
+        var secb = parseInt($("#sec_B").val());
+        if (isNaN(secb) || secb < 0) {
+            alert("Section B should have non-negative members!");
+            return;
+        }
+        localStorage.conf_sec_B = JSON.stringify(secb);
+
+        alert("Saved!");
+    }
+</script>

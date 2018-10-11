@@ -1,0 +1,276 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify">
+            In the cellular automation model, a new generation is created (advancing round by 1), according to 5 rules (harvest, reproduction, death, movement, and competition) that determines the new state of each cell regarding the current state of the cell and the states of the cells in its neighborhood:
+        </p>
+        <p class="text-center"><img src="/images/guide2.png" width="200"></p>
+        <p class="text-justify mathjax">
+            <strong>(a)</strong> Harvest rule. Each player can choose some tokens of the corresponding resource to extract, and these tokens will be removed. <strong>The performance of the rule is controlled by human players</strong>.
+        </p>
+    </div>
+    <div class="col-md-8">
+        <div class="conf-content text-center">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            Resource A
+                        </div>
+                        <div class="panel-body text-left">
+                            <table class="form-custom">
+                                <tr>
+                                    <td width="50%">Neighborhood</td>
+                                    <td class="form-inline"><input id="a_ngh_0" type="number" class="input-sm form-control" min="0" max="99" value="0"/> to <input id="a_ngh_1" type="number" class="input-sm form-control" min="0" max="99" value="0"/></td>
+                                </tr>
+                                <!--
+                                <tr>
+                                    <td width="50%">Reproducing area</td>
+                                    <td class="form-inline"><input id="a_rep_0" type="number" class="input-sm form-control" min="0" max="99" value="1"/> to <input id="a_rep_1" type="number" class="input-sm form-control" min="0" max="99" value="1"/></td>
+                                </tr>
+                                <tr>
+                                    <td width="50%">Reproducing type</td>
+                                    <td class="form-inline"><label class="input-sm"><input type="radio" name="a_rep_type" value="0"/> Number</label><label class="input-sm"><input type="radio" name="a_rep_type" value="1" checked/> Rate</label></td>
+                                </tr>
+                                -->
+                            </table>
+                            <div>
+                                Reproduction calculation:
+                                <textarea id="a_rep_calc" class="form-control java" rows="6"></textarea>
+                            </div>
+                            <br>
+                            <div>
+                                Death calculation:
+                                <textarea id="a_death_calc" class="form-control java" rows="6"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="panel panel-danger">
+                        <div class="panel-heading">
+                            Resource B
+                        </div>
+                        <div class="panel-body text-left">
+                            <table class="form-custom">
+                                <tr>
+                                    <td width="50%">Neighborhood</td>
+                                    <td class="form-inline"><input id="b_ngh_0" type="number" class="input-sm form-control" min="0" max="99" value="0"/> to <input id="b_ngh_1" type="number" class="input-sm form-control" min="0" max="99" value="0"/></td>
+                                </tr>
+                                <!--
+                                <tr>
+                                    <td width="50%">Reproducing area</td>
+                                    <td class="form-inline"><input id="b_rep_0" type="number" class="input-sm form-control" min="0" max="99" value="1"/> to <input id="b_rep_1" type="number" class="input-sm form-control" min="0" max="99" value="1"/></td>
+                                </tr>
+                                <tr>
+                                    <td width="50%">Reproducing type</td>
+                                    <td class="form-inline"><label class="input-sm"><input type="radio" name="b_rep_type" value="0"/> Number</label><label class="input-sm"><input type="radio" name="b_rep_type" value="1" checked/> Rate</label></td>
+                                </tr>
+                                -->
+                            </table>
+                            <div>
+                                Reproduction calculation:
+                                <textarea id="b_rep_calc" class="form-control java" rows="6"></textarea>
+                            </div>
+                            <br>
+                            <div>
+                                Death calculation:
+                                <textarea id="b_death_calc" class="form-control java" rows="6"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Other parameters
+                </div>
+                <div class="panel-body text-center form-inline">
+                    <div class="row">
+                        <div class="col-md-3 text-left"><strong>Spatial dependence</strong></div>
+                        <div class="col-md-9 text-left form-inline">
+                            <select id="ab_order" class="form-control input-sm">
+                                <option value="0" selected>No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p></p>
+                    <div class="row">
+                        <div class="col-md-3 text-left"><strong>Coexistence</strong></div>
+                        <div class="col-md-9 text-left form-inline">
+                            <select id="ab_coexist" class="form-control input-sm">
+                                <option value="0" selected>No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p></p>
+                    <div class="row">
+                        <div class="col-md-3 text-left"><strong>Competition rate</strong></div>
+                        <div class="col-md-9 text-left form-inline">
+                            <input id="a_win" type="number" class="form-control input-sm" min="0" max="1" step="0.01" value="1.0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Moving pattern
+                </div>
+                <div class="panel-body text-center form-inline">
+                    <div>
+                        <label id="m_cluster" class="label label-default">0</label>
+                    </div>
+                    <label class="input-sm">Random&nbsp<input id="ab_move" type="range" class="form-control input-sm slider" min="0" max="1" step="0.01" onchange="show_cluster();">&nbspCluster</label>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Coexistence
+                </div>
+                <div class="panel-body text-left mathjax">
+                    Due to movement or reproduction, the tokes of two resources are possible to appear in the same cell. The model should be informed whether the two tokens can coexist:
+                    <div class="form-inline">
+                        <label class="input-sm"><input type="radio" name="ab_coexist" value="1"/> Yes</label><label class="input-sm"><input type="radio" name="ab_coexist" value="0" checked/> No</label>
+                    </div>
+                    If they cannot coexist, resource A win the competition with the probability ($w$), and resource B with ($1-w$):
+                    <div class="form-inline">
+                        <label class="input-sm"><i>P</i> = </label><input id="a_win" type="number" class="form-control" min="0" max="1" step="0.01" value="1.0"/>
+                    </div>
+                </div>
+            </div>
+            -->
+            <p></p>
+            <button class="btn btn-default btn-sm" onclick="set_dynamics(); return false;">Save</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        if (!!localStorage.conf_dyn_A_neighbor) {
+            var rg = JSON.parse(localStorage.conf_dyn_A_neighbor).split("-");
+            $("#a_ngh_0").val(rg[0]);
+            $("#a_ngh_1").val(rg[1]);
+        }
+
+        if (!!localStorage.conf_dyn_B_neighbor) {
+            var rg = JSON.parse(localStorage.conf_dyn_B_neighbor).split("-");
+            $("#b_ngh_0").val(rg[0]);
+            $("#b_ngh_1").val(rg[1]);
+        }
+
+        /*
+        if (!!localStorage.conf_dyn_A_rep_area) {
+            var rg = JSON.parse(localStorage.conf_dyn_A_rep_area).split("-");
+            $("#a_rep_0").val(rg[0]);
+            $("#a_rep_1").val(rg[1]);
+        }
+
+        if (!!localStorage.conf_dyn_B_rep_area) {
+            var rg = JSON.parse(localStorage.conf_dyn_B_rep_area).split("-");
+            $("#b_rep_0").val(rg[0]);
+            $("#b_rep_1").val(rg[1]);
+        }
+
+        if (!!localStorage.conf_dyn_A_rep_type)
+            $("input[name='a_rep_type'][value='" + JSON.parse(localStorage.conf_dyn_A_rep_type) + "']").attr("checked", true);
+
+        if (!!localStorage.conf_dyn_B_rep_type)
+            $("input[name='b_rep_type'][value='" + JSON.parse(localStorage.conf_dyn_B_rep_type) + "']").attr("checked", true);
+        */
+
+        if (!!localStorage.conf_dyn_A_rep_fcn) {
+            $("#a_rep_calc").val(JSON.parse(localStorage.conf_dyn_A_rep_fcn));
+            $("#a_death_calc").val(JSON.parse(localStorage.conf_dyn_A_death_fcn));
+            $("#b_rep_calc").val(JSON.parse(localStorage.conf_dyn_B_rep_fcn));
+            $("#b_death_calc").val(JSON.parse(localStorage.conf_dyn_B_death_fcn));
+        } else {
+            $("#a_rep_calc").val("public double rValue(int Na, int Nb) {\n    return 0;\n}");
+            $("#b_rep_calc").val("public double rValue(int Na, int Nb) {\n    return 0;\n}");
+            $("#a_death_calc").val("public double dValue(int Na, int Nb) {\n    return 0;\n}");
+            $("#b_death_calc").val("public double dValue(int Na, int Nb) {\n    return 0;\n}");
+        }
+
+        if (!!localStorage.conf_dyn_update)
+            $("#ab_order").val(JSON.parse(localStorage.conf_dyn_update));
+
+        if (!!localStorage.conf_dyn_coexist)
+            // $("input[name='ab_coexist'][value='" + JSON.parse(localStorage.conf_dyn_coexist) + "']").attr("checked", true);
+            $("#ab_coexist").val(JSON.parse(localStorage.conf_dyn_coexist));
+
+        if (!!localStorage.conf_dyn_A_win)
+            $("#a_win").val(JSON.parse(localStorage.conf_dyn_A_win));
+
+        // show_cluster();
+    });
+
+    function set_dynamics() {
+        var an0 = parseInt($("#a_ngh_0").val());
+        var an1 = parseInt($("#a_ngh_1").val());
+        var bn0 = parseInt($("#b_ngh_0").val());
+        var bn1 = parseInt($("#b_ngh_1").val());
+        /*
+        var ar0 = parseInt($("#a_rep_0").val());
+        var ar1 = parseInt($("#a_rep_1").val());
+        var br0 = parseInt($("#b_rep_0").val());
+        var br1 = parseInt($("#b_rep_1").val());
+        */
+        var awn = parseFloat($("#a_win").val());
+
+        if (an0 < 0 || an1 < 0 || bn0 < 0 || bn1 < 0) {
+            alert("Range and area should be positive!");
+            return;
+        }
+
+        if (an0 > an1 || bn0 > bn1) {
+            alert("Range and area are invalid!");
+            return;
+        }
+
+        if (awn < 0 || awn > 1) {
+            alert("Coexistence probability should be between 0 and 1!");
+            return;
+        }
+
+        localStorage.conf_dyn_A_neighbor = JSON.stringify(an0 + "-" + an1);
+        localStorage.conf_dyn_B_neighbor = JSON.stringify(bn0 + "-" + bn1);
+        // localStorage.conf_dyn_A_rep_area = JSON.stringify(ar0 + "-" + ar1);
+        // localStorage.conf_dyn_B_rep_area = JSON.stringify(br0 + "-" + br1);
+        // localStorage.conf_dyn_A_rep_type = JSON.stringify(parseInt($("input[name='a_rep_type']:checked").val()));
+        // localStorage.conf_dyn_B_rep_type = JSON.stringify(parseInt($("input[name='b_rep_type']:checked").val()));
+        localStorage.conf_dyn_A_rep_fcn = JSON.stringify($("#a_rep_calc").val());
+        localStorage.conf_dyn_A_death_fcn = JSON.stringify($("#a_death_calc").val());
+        localStorage.conf_dyn_B_rep_fcn = JSON.stringify($("#b_rep_calc").val());
+        localStorage.conf_dyn_B_death_fcn = JSON.stringify($("#b_death_calc").val());
+        localStorage.conf_dyn_update = JSON.stringify((parseInt($("#ab_order").val())));
+        // localStorage.conf_dyn_coexist = JSON.stringify(parseInt($("input[name='ab_coexist']:checked").val()));
+        localStorage.conf_dyn_coexist = JSON.stringify(parseInt($("#ab_coexist").val()));
+        localStorage.conf_dyn_A_win = JSON.stringify(awn);
+
+        alert("Saved");
+    }
+
+    /*
+    function show_cluster() {
+        $("#m_cluster").text($("#ab_move").val());
+    }
+    */
+</script>

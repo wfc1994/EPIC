@@ -1,0 +1,116 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><h1>统计</h1></div>
+        <div class="col-md-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><p>显示玩家所有回合的信息，玩家可以查看自己的收入情况。</p></div>
+        <div class="col-md-2"></div>
+    </div>
+    <hr>
+</div>
+<div class="row">
+    <div class="col-md-3"/>
+    <div class="col-md-6 text-center">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th>回合</th>
+                    <th>资源</th>
+                    <th>收获</th>
+                    <th>再分配</th>
+                    <th>收入</th>
+                </tr>
+                </thead>
+                <tbody id="statistic">
+                </tbody>
+            </table>
+        </div>
+        <hr>
+        <button type="button" class="btn btn-default btn-sm" onclick="gover(); return false;">Game Over</button>
+    </div>
+    <div class="col-md-3"/>
+</div>
+<script>
+    $(document).ready(function() {
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group : sessionStorage._group, code : sessionStorage._code, stage : 16},
+            success: function (json) {
+                //var R = JSON.parse(localStorage.d_round);
+                var R = json.round;
+                //var actions = JSON.parse(d_action);
+                var actions = JSON.parse(json.d_action);
+                //var patterns = JSON.parse(d_pattern);
+                var patterns = JSON.parse(json.d_pattern);
+                //var players = JSON.parse(localStorage.d_players);
+                var players = json.all_players;
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+                var my = sessionStorage._code;
+                var op = "";
+                var p = 0;
+
+                for (var i = 0; i < 2; i++) {
+                    if (players[i] != my) {
+                        op = players[i];
+                        break;
+                    }
+                }
+
+                if (sessionStorage._role == "B") {
+                    p = 1;
+                }
+
+                var mval = model.payoff_appearance;
+                var trl = "<tr><td>出场费</td><td></td><td></td><td></td><td><span style='color: mediumblue'><strong>" + model.payoff_appearance + "</strong></span></td></tr>";
+                $(trl).appendTo("#statistic");
+
+                for (var rd = 0; rd < R; rd++) {
+                    var inir = patterns[rd][p].ini.length;
+                    var hstn = 0;
+                    var pnhn = 0;
+                    var incv = 0;
+
+                    for (var i = 0; i < actions[rd][0].length; i++) {
+                        for (var j = 0; j < actions[rd][0][i].length; j++) {
+                            hstn = hstn + actions[rd][0][i][j];
+                        }
+                    }
+                    pnhn = patterns[rd][2][my].redist;
+                    incv = patterns[rd][2][my].income + patterns[rd][2][my].redist;
+                    mval = mval + incv * ((p == 0) ? model.payoff_a : model.payoff_b);
+
+                    var trl = "<tr><td>" + (rd + 1) + "</td><td>" + strip(inir) + "</td><td>" + strip(hstn) + "</td><td>" + strip(pnhn) + "</td><td>" + strip(incv) + "</td></tr>";
+                    $(trl).appendTo("#statistic");
+                }
+
+                var trl = "<tr><td>总计（以美元计算） " + model.payoff_unit + "</td><td></td><td></td><td></td><td><span style='color: forestgreen'><strong>" + strip(mval) + "</strong></span></td></tr>";
+                $(trl).appendTo("#statistic");
+            }
+        });
+    });
+
+    function gover() {
+        localStorage.clear();
+        location.reload();
+        sessionStorage.clear();
+    }
+</script>

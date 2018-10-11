@@ -1,0 +1,369 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><h1>决策 (<span id="curr_round"></span>/<span id="total_round"></span>)</h1></div>
+        <div class="col-md-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><p>玩家来到决策阶段，这个阶段是行为实验的核心。玩家应该通过在图形界面中选择资源令牌（通过鼠标点击）做出自己的决定以收获个人利益。为了反映资源的竞争性利用，玩家可以观察其他玩家的实时决策。需要注意的是，自己收获对应角色的资源，不能收获空白和已收获的资源。玩家可以点击“做决策”按钮提交数据，也可以等待计时结束自动提交。</p></div>
+        <div class="col-md-2"></div>
+    </div>
+    <hr>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <p class="text-justify" id="inst_conc"></p>
+    </div>
+    <div class="col-md-8">
+        <div>
+            <center>
+                <table class="table-bordered table-condensed table-striped">
+                    <tbody>
+                    <tr>
+                        <td colspan="5" class="text-center"><strong>上一轮</strong></td>
+                        <td rowspan="2"><strong>总收入</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px">收获A</td>
+                        <td style="padding: 3px">收获B</td>
+                        <td style="padding: 3px">我的收获</td>
+                        <td style="padding: 3px">我的花费</td>
+                        <td style="padding: 3px">我的再分配</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px"><span id="last_hA">0</span></td>
+                        <td style="padding: 3px"><span id="last_hB">0</span></td>
+                        <td style="padding: 3px"><span id="last_my">0</span></td>
+                        <td style="padding: 3px"><span id="last_ct">0</span></td>
+                        <td style="padding: 3px"><span id="last_re">0</span></td>
+                        <td style="padding: 3px"><span id="totl_in">0</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </center>
+        </div>
+        <br>
+        <!--
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p class="text-center">
+                    <strong>Last round harvesting</strong>:
+                    <label class="label label-primary">A <span id="last_A"></span></label>;
+                    <label class="label label-danger">B <span id="last_B"></span></label>
+                    &nbsp;&nbsp;&nbsp;
+                    <strong>My summary</strong>:
+                    <label class="label label-default">Harvest <span id="total_harvest"></span></label>;
+                    <label class="label label-default">Redistributed <span id="pure_income"></span></label>
+                </p>
+            </div>
+        </div>
+        -->
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p class="text-center">
+                    收获资源: <span id="hnum" class="label label-default">0</span>; 剩余资源: <span id="rnum" class="label label-default">0</span>.
+                </p>
+                <hr/>
+                <center>
+                    <table id="board" class="lattice">
+                    </table>
+                    <br/>
+                    <button type="button" class="btn btn-default btn-sm" onclick="decide(); return false;">做决策</button>
+                </center>
+                <!--
+                <hr/>
+                <p>
+                    <img src="/images/R10.png" class="chess"> Living A;
+                    <img src="/images/R20.png" class="chess"> Harvested A;
+                    <img src="/images/R01.png" class="chess"> Living B;
+                    <img src="/images/R02.png" class="chess"> Harvested B;
+                </p>
+                -->
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2"/>
+</div>
+<script>
+    var hnum = 0;
+    var rnum = 0;
+    var harvested;
+    var dynView = 0;
+    var patterns1;
+    $(document).ready(function() {
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 8},
+            success: function (json) {
+                //var rd = parseInt(localStorage.d_current);
+                var rd = parseInt(json.current);
+                //var iniPattern = JSON.parse(localStorage.d_initial);
+                var iniPattern = json.initial;
+                //var patterns = JSON.parse(d_pattern);
+                var patterns = JSON.parse(json.d_pattern);
+                //var myActions = JSON.parse(d_action);
+                var myActions = JSON.parse(json.d_action);
+                //var allPlayers = JSON.parse(localStorage.d_players);
+                var allPlayers = json.all_players;
+                var role = sessionStorage._role;
+                var AGrid;
+                var BGrid;
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+                var K = model.K;
+
+                $("#curr_round").text(rd + 1);
+                //$("#total_round").text(localStorage.d_round);
+                $("#total_round").text(json.round);
+
+                if (rd == 0) {
+                    AGrid = iniPattern[0].dyn;
+                    BGrid = iniPattern[1].dyn;
+                } else {
+                    AGrid = patterns[rd - 1][0].dyn;
+                    BGrid = patterns[rd - 1][1].dyn;
+                }
+
+                // 生成棋盘
+                for (var i = 0; i < K; i++) {
+                    var inner = '<tr class="lattice cell">';
+                    for (var j = 0; j < K; j++) {
+                        var cell = '<td class="lattice cell"><a id="' + i + '-' + j + '" onclick="act(' + i + ',' + j + ')"><img src="/images/R00.png" class="chess"></a></td>';
+                        inner += cell;
+                    }
+                    inner += "</tr>";
+                    $(inner).appendTo("#board");
+                }
+
+                // 放置资源
+                for (var i = 0; i < AGrid.length; i++) {
+                    var x = AGrid[i][0];
+                    var y = AGrid[i][1];
+                    $("a#" + x + "-" + y + "> img").attr("src", "/images/R10.png");
+                    if (role == "A")
+                        rnum++;
+                }
+                for (var i = 0; i < BGrid.length; i++) {
+                    var x = BGrid[i][0];
+                    var y = BGrid[i][1];
+                    var imgname = $("a#" + x + "-" + y + "> img").attr("src");
+                    if (imgname[9] == '0')
+                        $("a#" + x + "-" + y + " > img").attr("src", "/images/R01.png");
+                    else
+                        $("a#" + x + "-" + y + " > img").attr("src", "/images/R11.png");
+                    if (role == "B")
+                        rnum++;
+                }
+
+                //还原行为
+                for (var i = 0; i < K; i++) {
+                    for (var j = 0; j < K; j++) {
+                        if (myActions[rd][0][i][j] > 0) {
+                            hnum++;
+                            // rnum--;
+                            // var temp = $("a#"+i+"-"+j+" > img").attr("src");
+                            // $("a#"+i+"-"+j+" > img").attr("src", replace(temp, sessionStorage._role));
+                        }
+                    }
+                }
+                $("#hnum").text("" + hnum);
+                $("#rnum").text("" + rnum);
+
+                console.log("1. hnum=" + hnum + ", rnum=" + rnum);
+
+                // 简要介绍
+                $("#inst_conc").text(json.slide[0]);
+
+
+                if (rd > 0) {
+                    var hA = patterns[rd - 1][0].ini.length - patterns[rd - 1][0].hvt.length;
+                    var hB = patterns[rd - 1][1].ini.length - patterns[rd - 1][1].hvt.length;
+                    var tH = patterns[rd - 1][2][sessionStorage._code].income;
+                    var pi = patterns[rd - 1][2][sessionStorage._code].redist;
+                    $("#last_hA").text(hA);
+                    $("#last_hB").text(hB);
+                    $("#last_my").text(strip(tH));
+                    var ct = 0;
+                    for (var i = 0; i < allPlayers.length; i++) {
+                        ct = ct + myActions[rd - 1][1][allPlayers[i].code];
+                    }
+                    $("#last_ct").text(strip(ct));
+                    //$("#last_re").text(strip(pi - ct));
+                    $("#last_re").text(strip(pi));
+                    var totin = 0;
+                    for (var t = 0; t < rd; t++) {
+                        totin += patterns[t][2][sessionStorage._code].income + patterns[t][2][sessionStorage._code].redist;
+                    }
+                    $("#totl_in").text(strip(totin));
+                }
+
+                harvested = new Array();
+                for (var i = 0; i < K; i++) {
+                    harvested[i] = new Array();
+                    for (var j = 0; j < K; j++) {
+                        harvested[i][j] = 0;
+                    }
+                }
+                dynView = 1;
+                getLastActions();
+            }
+        });
+    });
+
+    function getLastActions() {
+        window.setTimeout(function() {
+            $.getJSON("/servlet/harvest", {group : sessionStorage._group, code : sessionStorage._code}, function(json, state) {
+                if (dynView == 1) {
+                    displayActions(json.actionAs, json.actionBs);
+                    getLastActions();
+                }
+            });
+        }, 300);
+    }
+
+    function displayActions(actionAs, actionBs) {
+        for (var i = 0; i < actionAs.length; i++) {
+            var x = actionAs[i][0];
+            var y = actionAs[i][1];
+            if ((harvested[x][y] == 0 || harvested[x][y] == 2)) {
+                var id = "a#" + x + "-" + y + " > img";
+                var img = $(id).attr("src");
+                if (harvested[x][y] == 0)
+                    harvested[x][y] = 1;
+                else
+                    harvested[x][y] = 3;
+                if (sessionStorage._role == "A")
+                    rnum--;
+                $(id).attr("src", replace(img, "A"));
+            }
+        }
+        for (var i = 0; i < actionBs.length; i++) {
+            var x = actionBs[i][0];
+            var y = actionBs[i][1];
+            if ((harvested[x][y] == 0 || harvested[x][y] == 1)) {
+                var id = "a#" + x + "-" + y + " > img";
+                var img = $(id).attr("src");
+                if (harvested[x][y] == 0)
+                    harvested[x][y] = 2;
+                else
+                    harvested[x][y] = 3;
+                if (sessionStorage._role == "B")
+                    rnum--;
+                $(id).attr("src", replace(img, "B"));
+            }
+        }
+        $("#rnum").text("" + rnum);
+    }
+
+    var actable = true;
+    function act(x, y) {
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 8},
+            success: function (json) {
+                if (!actable)
+                    return;
+                //var rd = parseInt(localStorage.d_current);
+                var rd = parseInt(json.current);
+                var role = sessionStorage._role;
+                //var myActions = JSON.parse(d_action);
+                var myActions = JSON.parse(json.d_action);
+                var id = "a#" + x + "-" + y + " > img";
+                var img = $(id).attr("src");
+
+                if ((role == "A" && img[9] == "0") || (role == "B" && img[10] == "0"))
+                    return;
+
+                actable = false;
+                $.getJSON("/servlet/harvest", {
+                    group: sessionStorage._group,
+                    code: sessionStorage._code,
+                    x: x,
+                    y: y
+                }, function (json, state) {
+                    if (json.harvest) {
+                        myActions[rd][0][x][y] = 1;
+                        var d_action = JSON.stringify(myActions);
+                        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 18, action : d_action}, success: function (json) {}});
+                        console.log("decdyn", d_action);
+                        displayActions(json.actionAs, json.actionBs);
+                        hnum++;
+                        $("#hnum").text("" + hnum);
+                        // rnum--;
+                        // $("#rnum").text("" + rnum);
+                    } else {
+                        alert("Your selection is harvested by others!");
+                    }
+                    actable = true;
+                });
+            }
+        });
+    }
+
+    function replace(img, role) {
+        var p = -1;
+        if (role == "A")
+            p = 9;
+        else
+            p = 10;
+        if (img[p] == "1")
+            img = changeChar(img, p, "2");
+        else if (img[p] == "2")
+            img = changeChar(img, p, "1");
+        return img;
+    }
+
+    function changeChar(str, p, c){
+        return str.substring(0, p) + c + str.substring(p + 1, str.length);
+    }
+
+    function decide() {
+        dynView = 0;
+        _stop = true;
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,190 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<ul class="nav nav-tabs" role="tablist">
+    <li role="presentation">
+        <a href="#tab_basic" aria-controls="tab_basic" role="tab" data-toggle="tab">Basic</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_players" aria-controls="tab_player" role="tab" data-toggle="tab">Players</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_duration" aria-controls="tab_duration" role="tab" data-toggle="tab">Duration</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_instruction" aria-controls="tab_instruction" role="tab" data-toggle="tab">Instruction</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_survey" aria-controls="tab_survey" role="tab" data-toggle="tab">Survey</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_comm" aria-controls="tab_survey" role="tab" data-toggle="tab">Communication</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_resource" aria-controls="tab_resource" role="tab" data-toggle="tab">Ecosystem</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_punish" aria-controls="tab_punish" role="tab" data-toggle="tab">Redistribution</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_payoff" aria-controls="tab_payoff" role="tab" data-toggle="tab">Payoff</a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_import" aria-controls="tab_import" role="tab" data-toggle="tab"><span style="color: mediumvioletred">Import</span></a>
+    </li>
+    <li role="presentation">
+        <a href="#tab_images" aria-controls="tab_images" role="tab" data-toggle="tab"><span style="color: mediumvioletred">Images</span></a>
+    </li>
+</ul>
+<!-- Tab panes -->
+<div class="tab-content">
+    <div role="tabpanel" class="tab-pane fade" id="tab_basic"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_players"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_duration"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_instruction"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_survey"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_comm"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_resource"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_punish"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_payoff"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_import"/>
+    <div role="tabpanel" class="tab-pane fade" id="tab_images"/>
+</div>
+<hr style="border: 0; color: black; background-color: #e0e0e0; height: 1px"/>
+<div class="text-center">
+    <a href="#" class="btn btn-primary" onclick="build_conf(); return false;">Validate</a>
+    <a href="#" id="cdown" class="btn btn-info" onclick="download_conf(); return false;" disabled="true">Download</a>
+    <a href="#" id="rexpe" class="btn btn-danger" onclick="run_exp(); return false;" disabled="true"> Execute </a>
+</div>
+<script>
+    var cvariables = [
+        ["conf_players", "Players"],
+        ["conf_eid", "Basic"],
+        ["conf_round", "Basic"],
+        ["conf_K", "Basic"],
+        ["conf_boundary", "Basic"],
+        ["conf_ini_A", "Basic"],
+        ["conf_ini_B", "Basic"],
+        ["conf_viewable", "Basic"],
+        ["conf_sec_A", "Basic"],
+        ["conf_sec_B", "Basic"],
+        ["conf_chat_emoji", "Communication"],
+        ["conf_chat_text", "Communication"],
+        ["conf_chat_range", "Communication"],
+        ["conf_chat_limit", "Communication"],
+        ["conf_instruction_full", "Instruction"],
+        ["conf_instruction_concise", "Instruction"],
+        ["conf_survey_questions", "Survey"],
+        ["conf_instruction_duration", "Duration"],
+        ["conf_test_duration", "Duration"],
+        ["conf_com_duration", "Duration"],
+        ["conf_decision_duration", "Duration"],
+        ["conf_punish_duration", "Duration"],
+        ["conf_disp_duration", "Duration"],
+        ["conf_ques_duration", "Duration"],
+        ["conf_dyn_A_neighbor", "Resource dynamics"],
+        ["conf_dyn_B_neighbor", "Resource dynamics"],
+        /*
+        ["conf_dyn_A_rep_area", "Resource dynamics"],
+        ["conf_dyn_B_rep_area", "Resource dynamics"],
+        ["conf_dyn_A_rep_type", "Resource dynamics"],
+        ["conf_dyn_B_rep_type", "Resource dynamics"],
+        ["conf_dyn_A_rep_fcn", "Resource dynamics"],
+        ["conf_dyn_A_death_fcn", "Resource dynamics"],
+        ["conf_dyn_B_rep_fcn", "Resource dynamics"],
+        ["conf_dyn_B_death_fcn", "Resource dynamics"],
+        */
+        ["conf_dyn_rules", "Resource dynamics"],
+        ["conf_dyn_update", "Resource dynamics"],
+        ["conf_dyn_coexist", "Resource dynamics"],
+        ["conf_dyn_A_win", "Resource dynamics"],
+        ["conf_payoff_unit", "Payoff"],
+        ["conf_payoff_appearance", "Payoff"],
+        ["conf_payoff_a_price", "Payoff"],
+        ["conf_payoff_b_price", "Payoff"],
+        ["conf_punish_type", "Punishment/Reward"],
+        ["conf_punish_rate_AA", "Punishment/Reward"],
+        ["conf_punish_rate_AB", "Punishment/Reward"],
+        ["conf_punish_rate_BA", "Punishment/Reward"],
+        ["conf_punish_rate_BB", "Punishment/Reward"]
+    ];
+
+    $(document).ready(function () {
+        $("#tab_import").load("tab_import.html");
+        $("#tab_players").load("tab_players.html");
+        $("#tab_basic").load("tab_basic.html");
+        $("#tab_instruction").load("tab_instruction.html");
+        $("#tab_survey").load("tab_survey.html");
+        $("#tab_comm").load("tab_comm.html");
+        $("#tab_duration").load("tab_duration.html");
+        $("#tab_resource").load("tab_resource_nocode.html");
+        $("#tab_payoff").load("tab_payoff.html");
+        $("#tab_punish").load("tab_punish.html");
+        $("#tab_images").load("tab_images.html");
+        $('a[href="#tab_basic"]').click();
+    });
+
+    //图片上传方法
+    function to_upload() {
+        $('a[href="#tab_images"]').click();
+    }
+
+    //验证配置方法
+    function build_conf() {
+        for (var i = 0; i < cvariables.length; i++) {
+            if (!localStorage[cvariables[i][0]]) {
+                alert(cvariables[i][1] + " is not configured!");
+                return;
+            }
+        }
+        $("#cdown").attr("disabled", false);
+        $("#rexpe").attr("disabled", false);
+        alert("Configuration is OK!");
+    }
+
+    //下载配置方法
+    function download_conf() {
+        var cjson = {};
+        for (var i = 0; i < cvariables.length; i++) {
+            cjson[cvariables[i][0]] = JSON.parse(localStorage[cvariables[i][0]]);
+        }
+        createAndDownloadFile("configuration.json", JSON.stringify(cjson));
+    }
+
+    //运行方法
+    function run_exp() {
+        var cjson = {};
+        for (var i = 0; i < cvariables.length; i++) {
+            cjson[cvariables[i][0]] = JSON.parse(localStorage[cvariables[i][0]]);
+        }
+        $.getJSON("/servlet/admin/ic/start", {code : sessionStorage._code, conf : JSON.stringify(cjson)}, function(json, state) {
+            if (json.started) {
+                localStorage.clear();
+                location.reload();
+            } else {
+                alert(json.response);
+            }
+        });
+    }
+
+    function createAndDownloadFile(fileName, content) {
+        var aTag = document.createElement('a');
+        var blob = new Blob([content]);
+        aTag.download = fileName;
+        aTag.href = URL.createObjectURL(blob);
+        aTag.click();
+        URL.revokeObjectURL(blob);
+    }
+</script>

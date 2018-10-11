@@ -1,0 +1,110 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify">
+            In this panel, you can define how many players are involved in the experiment. You should define the maximal number of players; and then click the "Generate" button to generate the list of all players. Each player has a code and a password, which are used to sign in the experimental systems.
+        </p>
+    </div>
+    <div class="col-md-8 text-center conf-content">
+        <form role="form">
+            <div class="form-inline">
+                <input id="player_num" type="number" class="form-control input-sm" min="2" value="2">
+                <button type="submit" class="btn btn-default btn-sm" onclick="generate(); return false;">Generate</button>
+            </div>
+        </form>
+        <hr>
+        <div class="row">
+            <div class="col-md-9">
+                <div id="player_list" class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                        <th>Code</th>
+                        <th>Password</th>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="col-md-3 text-center">
+                <button class="btn btn-default btn-sm" onclick="plst_print(); return false;">Print</button>
+                <p></p>
+                <button class="btn btn-default btn-sm" onclick="plst_download(); return false;">Download</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //将json文件中的players数据读放入到页面中
+        if (!localStorage.conf_players)
+            return;
+        var plst = JSON.parse(localStorage.conf_players);
+        $("#player_list tbody").empty();
+        for (var i = 0; i < plst.length; i++) {
+            $("<tr><td>" + plst[i][0] + "</td><td>" + plst[i][1] + "</td></tr>").appendTo("#player_list tbody");
+        }
+    });
+
+    //生成玩家的方法
+    function generate() {
+        var num = parseInt($("#player_num").val());
+        if (num < 2)
+            num = 2;
+        var players = [];
+        $("#player_list tbody").empty();
+        for (var i = 0; i < num; i++) {
+            var id = "player" + (i+1);
+            var password = randomWord(9);
+            players.push([id, password]);
+            $("<tr><td>" + id + "</td><td>" + password + "</td></tr>").appendTo("#player_list tbody");
+        }
+        localStorage.conf_players = JSON.stringify(players);
+    }
+
+    //打印的方法
+    function plst_print() {
+        window.print();
+    }
+
+    //下载的方法
+    function plst_download() {
+        var plst = JSON.parse(localStorage.conf_players);
+        var content = "";
+        for (var i = 0; i < plst.length; i++) {
+            content = content + plst[i][0] + ", " + plst[i][1] + "\n";
+        }
+        var aTag = document.createElement('a');
+        var blob = new Blob([content]);
+        aTag.download = "players.txt";
+        aTag.href = URL.createObjectURL(blob);
+        aTag.click();
+        URL.revokeObjectURL(blob);
+    }
+
+    //产生随机密码的方法
+    function randomWord(range) {
+        var str = "",
+            arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+        for(var i=0; i<range; i++){
+            pos = Math.round(Math.random() * (arr.length-1));
+            str += arr[pos];
+        }
+        return str;
+    }
+</script>

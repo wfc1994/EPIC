@@ -1,0 +1,55 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="text-center conf-content">
+    <p>
+        Import existed configuration file into the server.
+    </p>
+    <div class="form-inline text-center">
+        <input id="impconf" class="form-control input-sm" type="file"/>
+        <button class="btn btn-default btn-sm" type="button" onclick="conf_import(); return false;">Import</button>
+    </div>
+    <br>
+    <br>
+</div>
+<script>
+    function conf_import() {
+        var cfile = $('#impconf')[0].files[0];
+        if (!cfile) {
+            alert("Please select a configuration file!");
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = _loaded;
+        //读取文件内容
+        reader.readAsText(cfile,"GB2312");
+    }
+
+    function _loaded(evt) {
+        var fileString = evt.target.result;
+        // alert(fileString);
+        var conf = JSON.parse(fileString);
+        for (key in conf) {
+            var a = JSON.stringify(conf[key]);
+            //var a = encodeURI(conf[key],"utf-8");
+            // alert(a);
+            localStorage[key] = a;
+        }
+
+        $("#cdown").attr("disabled", false);
+        $("#rexpe").attr("disabled", false);
+        location.reload();
+    }
+</script>

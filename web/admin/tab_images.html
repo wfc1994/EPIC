@@ -1,0 +1,80 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify">
+            If you want to display images (in your PC) in the instruction and survey stages, you should first upload them into the experimental system. The system will feedback the URL of given images for inserting into the rich-text editor.
+        </p>
+    </div>
+    <div class="col-md-8 text-center conf-content">
+        <div class="form-inline text-center">
+            <input id="uimg" class="form-control input-sm" type="file"/>
+            <button id="img_btn" class="btn btn-default btn-sm" type="button" onclick="img_upload(); return false;">Upload</button>
+        </div>
+        <hr>
+        <div id="img_list" class="table-responsive">
+            <table class="table table-condensed table-striped">
+                <thead>
+                <th>Name</th>
+                <th>URL</th>
+                <th width="10%"></th>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        img_list();
+    });
+
+    function img_list() {
+        $("#img_list tbody").empty();
+        $.getJSON("/servlet/admin/img_list", {}, function(json, state) {
+            for (var i = 0; i < json.length; i++) {
+                $("<tr><td class='text-left'>" + json[i].name + "</td><td class='text-left'>" + json[i].url + "</td><td><a href='' onclick='img_delete(\"" + json[i].name + "\"); return false;'><img src='/images/offline.png'></a></td></tr>").appendTo("#img_list tbody");
+            }
+        });
+    }
+
+    function img_upload() {
+        var formData = new FormData();
+        formData.append("file", $('#uimg')[0].files[0]);
+        $.ajax({
+            url: "/servlet/admin/img_upload",
+            type: "POST",
+            cache: false,
+            data: formData,
+            processData: false,
+            contentType: false
+        }).done(function(res) {
+        }).fail(function(res) {
+        });
+        window.setTimeout(function() {
+            img_list();
+        }, 1000);
+    }
+
+    function img_delete(img) {
+        console.log(img);
+        $.getJSON("/servlet/admin/img_delete", {img : img}, function(json, state) {
+            img_list();
+        });
+        return false;
+    }
+</script>

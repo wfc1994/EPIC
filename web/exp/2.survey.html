@@ -1,0 +1,156 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><h1>回答问题</h1></div>
+        <div class="col-md-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><p id="survey_info"></p></div>
+        <div class="col-md-2"></div>
+    </div>
+    <hr>
+</div>
+<div class="row">
+    <div class="col-md-2"/>
+    <div class="col-md-8">
+        <p>
+        <table width="100%">
+            <tr>
+                <td class="text-left"><button type="button" class="btn btn-primary" onclick="prev();">< 上一页</button></td>
+                <td class="text-right"><button type="button" class="btn btn-primary" onclick="next();">下一页 ></button></td>
+            </tr>
+        </table>
+        </p>
+        <div class="panel panel-default">
+            <div id="survey_question" class="panel-heading"></div>
+            <div class="panel-body">
+                <div id="survey_q_subject" class="mathjax"></div>
+                <hr/>
+                <div id="survey_q_option" class="mathjax"></div>
+            </div>
+        </div>
+        <!--
+        <p class="text-right">
+            <button type="button" class="btn btn-warning" onclick="record_answer();">Submit Answer</button>
+        </p>
+        -->
+    </div>
+    <div class="col-md-2"/>
+</div>
+<script>
+    var s_question, s_current, s_answer, s_type;
+
+    $(document).ready(function() {
+        if(localStorage._survey==0)
+            s_type = 0;
+        else
+            s_type = 1;
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, type: s_type, stage: 3},
+            success: function (json) {
+                //s_question = JSON.parse(localStorage.s_question);
+                s_question = json.question;
+                s_current = parseInt(localStorage.s_current);
+                s_answer = JSON.parse(localStorage.s_answer);
+                var tinfo = "<span>要求您在这个阶段回答 " + s_question.length + " 个问题，用于测试玩家是否了解EPIC的基本操作以及关于生态系统模型的必要信息。<\span>";
+                $("p#survey_info").empty();
+                $(tinfo).appendTo("p#survey_info");
+                show_question();
+            }
+        });
+    });
+
+    function show_question() {
+        localStorage.s_current = s_current;
+
+        var qtitle = "<span>问题 " + (s_current+1) + "</span>";
+        $("div#survey_question").empty();
+        $(qtitle).appendTo("div#survey_question");
+
+        $("div#survey_q_subject").empty();
+        $("<span>" + s_question[s_current].subject + "</span>").appendTo("div#survey_q_subject");
+
+        $("div#survey_q_option").empty();
+        if (s_question[s_current].options != null
+                && s_question[s_current].options.length > 0) {
+            for (var i = 0; i < s_question[s_current].options.length; i++) {
+                var op = "<div class='radio'><label><input type='radio' name='optradio' id='opt" + i
+                        + "' value='" + s_question[s_current].options[i] + "' onclick='radioChange(" + i + ");'/>"
+                        + s_question[s_current].options[i] + "</label></div>";
+                $(op).appendTo("div#survey_q_option");
+                if (s_question[s_current].options[i] == s_answer[s_current]) {
+                    $("input#opt" + i).attr("checked", "checked");
+                }
+            }
+
+        } else {
+            $("<input type=\"text\" id=\"answer\" onchange='textChange();'/>").appendTo("div#survey_q_option");
+            $("input#answer").attr("value", s_answer[s_current]);
+        }
+
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub]);
+    }
+
+    function prev() {
+        if (s_current == 0)
+            s_current = s_question.length;
+        s_current = (s_current-1) % s_question.length;
+        show_question();
+    }
+
+    function next() {
+        s_current = (s_current+1) % s_question.length;
+        show_question();
+    }
+
+    <!--
+    function record_answer() {
+        var result;
+        if (s_question[s_current].options != null
+                && s_question[s_current].options.length > 0) {
+            var n = $("input[type='radio'][name='optradio']:checked").length;
+            if (n > 0)
+                result = $("input[type='radio'][name='optradio']:checked").val();
+        } else {
+            result = $("input#answer").val();
+        }
+        if (result != null && result != "") {
+            s_answer[s_current] = result;
+            localStorage.s_answer = JSON.stringify(s_answer);
+        }
+    }
+    -->
+
+    function radioChange(i) {
+        // console.log(s_question[s_current].options[i]);
+        s_answer[s_current] = s_question[s_current].options[i];
+        localStorage.s_answer = JSON.stringify(s_answer);
+    }
+
+    function textChange() {
+        // console.log($("input#answer").val());
+        s_answer[s_current] = $("input#answer").val();
+        localStorage.s_answer = JSON.stringify(s_answer);
+    }
+</script>
+
+

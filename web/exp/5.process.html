@@ -1,0 +1,159 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><h1>回合总结(<span id="curr_round"></span>/<span id="total_round"></span>)</h1></div>
+        <div class="col-md-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><p>显示资源动态，玩家会看到以下资源的几种状态。初始化是每一轮初始资源的状态，收获后是玩家收获资源后的状态，移动后是收获后资源移动的状态，下轮初始是资源移动后再繁殖后产生的新状态，玩家可以理解成是资源动态演变的过程。</p></div>
+        <div class="col-md-2"></div>
+    </div>
+    <hr>
+</div>
+<div class="row">
+    <div class="col-md-2"/>
+    <div class="col-md-8">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p class="text-center">
+                    <strong>收获</strong>:
+                    <label class="label label-default"><span id="hn"></span></label>
+                    &nbsp;&nbsp;&nbsp;
+                    <strong>再分配</strong>:
+                    <label class="label label-default"><span id="rn"></span></label>
+                </p>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-inline text-center" id="orders">
+
+                </div>
+                <p></p>
+                <center>
+                    <table id="board" class="lattice">
+                    </table>
+                </center>
+                <p></p>
+                <p class="text-center">
+                    <strong>资源A</strong>:
+                    <label class="label label-primary"><span id="nA"></span></label>
+                    &nbsp;&nbsp;&nbsp;
+                    <strong>资源B</strong>:
+                    <label class="label label-danger"><span id="nB"></span></label>
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-2"/>
+</div>
+<script>
+    var dynOrder = ["ini", "mov", "hvt", "dyn"];
+
+    $(document).ready(function() {
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 12},
+            success: function (json) {
+                //var rd = parseInt(localStorage.d_current);
+                var rd = parseInt(json.current);
+                //var patterns = JSON.parse(d_pattern);
+                var patterns = JSON.parse(json.d_pattern);
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+
+                var radioi0 = '<label class="input-sm"><input id="sradio0" type="radio" name="order" onclick="schange(\'ini\');"/> 初始化</label>';
+                $(radioi0).appendTo("#orders");
+                var radioi2 = '<label class="input-sm"><input id="sradio2" type="radio" name="order" onclick="schange(\'hvt\');"/> 收获后</label>';
+                $(radioi2).appendTo("#orders");
+                if (model.Order == 0) {
+                    var radioi1 = '<label class="input-sm"><input id="sradio1" type="radio" name="order" onclick="schange(\'mov\');"/> 移动后</label>';
+                    $(radioi1).appendTo("#orders");
+                }
+                var radioi3 = '<label class="input-sm"><input id="sradio3" type="radio" name="order" onclick="schange(\'dyn\');"/> 下轮初始</label>';
+                $(radioi3).appendTo("#orders");
+
+                $("#curr_round").text(rd + 1);
+                //$("#total_round").text(localStorage.d_round);
+                $("#total_round").text(json.round);
+
+                $("#hn").text(patterns[rd][2][sessionStorage._code].income);
+                $("#rn").text(patterns[rd][2][sessionStorage._code].redist);
+
+                $("#sradio0").click();
+            }
+        });
+
+        // $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 120},
+        //     success: function () {
+        //         console.log("buile生成！");
+        //     }
+        // });
+    });
+
+    function schange(s) {
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 12},
+            success: function (json) {
+                //var rd = parseInt(localStorage.d_current);
+                var rd = parseInt(json.current);
+                //var patterns = JSON.parse(d_pattern);
+                var patterns = JSON.parse(json.d_pattern);
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+                var K = model.K;
+
+                //
+                $("#board").empty();
+
+                // 生成棋盘
+                for (var i = 0; i < K; i++) {
+                    var inner = '<tr class="lattice cell">';
+                    for (var j = 0; j < K; j++) {
+                        var cell = '<td class="lattice cell"><a id="' + i + '-' + j + '"><img src="/images/R00.png" class="chess"></a></td>';
+                        inner += cell;
+                    }
+                    inner += "</tr>";
+                    $(inner).appendTo("#board");
+                }
+
+                // 放置资源
+                var anum = 0, bnum = 0;
+                for (var i = 0; i < patterns[rd][0][s].length; i++) {
+                    var x = patterns[rd][0][s][i][0];
+                    var y = patterns[rd][0][s][i][1];
+                    $("a#" + x + "-" + y + "> img").attr("src", "/images/R10.png");
+                    anum++;
+                }
+                for (var i = 0; i < patterns[rd][1][s].length; i++) {
+                    var x = patterns[rd][1][s][i][0];
+                    var y = patterns[rd][1][s][i][1];
+                    var imgname = $("a#" + x + "-" + y + "> img").attr("src");
+                    if (imgname[9] == '0')
+                        $("a#" + x + "-" + y + " > img").attr("src", "/images/R01.png");
+                    else
+                        $("a#" + x + "-" + y + " > img").attr("src", "/images/R11.png");
+                    bnum++;
+                }
+
+                //
+                $("#nA").text(anum);
+                $("#nB").text(bnum);
+            }
+        });
+    }
+</script>

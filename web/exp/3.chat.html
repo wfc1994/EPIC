@@ -1,0 +1,279 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><h1>沟通 (<span id="curr_round"></span>/<span id="total_round"></span>)</h1></div>
+        <div class="col-md-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><p>来到沟通阶段，玩家可以与他人沟通，商量如何分配资源等。玩家可以选择“所有人”、“联盟”、“对手”三种模式进行聊天，即所有人可见，联盟队友可见，竞争对手可见。除此之外，玩家可以选择表情进行聊天。在聊天框的上方记录了上一轮资源记录，“收获A”代表收获所有A的资源数，“收获B”代表收获所有B的资源数，“我的收获”代表我收获的资源数，“我的花费”代表我用于再分配花费的资源数，“你得到的资源数”代表从别的玩家处得到的资源数。</p></div>
+        <div class="col-md-2"></div>
+    </div>
+    <hr>
+</div>
+<div class="row">
+    <div class="col-md-2"/>
+    <div class="col-md-8">
+        <div>
+            <center>
+                <table class="table-bordered table-condensed table-striped">
+                    <tbody>
+                    <tr>
+                        <td colspan="5" class="text-center"><strong>上一轮</strong></td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px">收获A</td>
+                        <td style="padding: 3px">收获B</td>
+                        <td style="padding: 3px">我的收获</td>
+                        <td style="padding: 3px">我的花费</td>
+                        <td style="padding: 3px">你得到的分配资源</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 3px"><span id="last_hA">0</span></td>
+                        <td style="padding: 3px"><span id="last_hB">0</span></td>
+                        <td style="padding: 3px"><span id="last_my">0</span></td>
+                        <td style="padding: 3px"><span id="last_ct">0</span></td>
+                        <td style="padding: 3px"><span id="last_re">0</span></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </center>
+        </div>
+        <div class="panel-body">
+            <div id="msgWindow" style="overflow-y: auto; font-size: 10.5pt; border: 1px solid; border-color: #122b40; height: 500px; width: 100%; background-color: gainsboro; padding: 5pt 5pt 5pt 5pt"></div>
+            <p></p>
+            <table>
+                <tr>
+                    <td width="20%" style="padding: 3px">
+                        <select id="txt_to" class="form-control">
+                        </select>
+                    </td>
+                    <td width="15%" style="padding: 3px">
+                        <select id="txt_emoji" class="form-control" style="display: none">
+                            <option value="0" selected></option>
+                            <option value="1">🙂</option>
+                            <option value="2">🙁</option>
+                            <option value="3">😠</option>
+                            <option value="4">😢</option>
+                            <option value="5">👍</option>
+                            <option value="6">👎</option>
+                            <option value="7">🤝</option>
+                        </select>
+                    </td>
+                    <td style="padding: 3px">
+                        <div id="div_limited" style="display: none">
+                            <select id="txt_limited" class="form-control">
+                                <option selected></option>
+                            </select>
+                        </div>
+                        <div id="div_free" style="display: none">
+                            <input id="txt_free" type="text" class="form-control" size="50" onkeypress="if(event.keyCode==13) {sendMsg(); return false;}"/>
+                        </div>
+                    </td>
+                    <td style="padding: 3px">
+                            <button type="button" class="btn btn-primary" onclick="sendMsg(); return false;">发送</button>
+                    </td>
+                </tr>
+            </table>
+            <!--
+            <div class="row">
+                <div class="col-md-3">
+                    <span><strong>To</strong></span>
+                    <select id="txt_to" class="form-control">
+                    </select>
+                </div>
+                <div id="div_emoji" class="col-md-2" style="display: none">
+                    <span><strong>Emoji</strong></span>
+                    <select id="txt_emoji" class="form-control">
+                        <option selected></option>
+                        <option>🙂</option>
+                        <option>🙁</option>
+                        <option>😠</option>
+                        <option>😢</option>
+                        <option>👍</option>
+                        <option>👎</option>
+                        <option>🤝</option>
+                    </select>
+                </div>
+                <div class="col-md-7">
+                    <div id="div_limited" style="display: none">
+                        <span><strong>Limited text</strong></span>
+                        <select id="txt_limited" class="form-control">
+                            <option selected></option>
+                        </select>
+                    </div>
+                    <div id="div_free" style="display: none">
+                        <span><strong>Text</strong></span>
+                        <input id="txt_free" type="text" class="form-control" size="50" onkeypress="if(event.keyCode==13) {sendMsg(); return false;}"/>
+                    </div>
+                </div>
+            </div>
+            -->
+        </div>
+    </div>
+    <div class="col-md-2"/>
+</div>
+
+<script>
+    var last_msg = 0;
+
+    $(document).ready(function() {
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 6},
+            success: function (json) {
+                // console.log("starting chat!");
+                //var rd = parseInt(localStorage.d_current);
+                var rd = parseInt(json.current);
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+                //var patterns = JSON.parse(d_pattern);
+                var patterns = JSON.parse(json.d_pattern);
+                //var myActions = JSON.parse(d_action);
+                var myActions = JSON.parse(json.d_action);
+                //var allPlayers = JSON.parse(localStorage.d_players);
+                var allPlayers = json.all_players;
+
+                $("#curr_round").text(rd + 1);
+                //$("#total_round").text(localStorage.d_round);
+                $("#total_round").text(json.round);
+
+                if (rd > 0) {
+                    var hA = patterns[rd - 1][0].ini.length - patterns[rd - 1][0].hvt.length;
+                    var hB = patterns[rd - 1][1].ini.length - patterns[rd - 1][1].hvt.length;
+                    var tH = patterns[rd - 1][2][sessionStorage._code].income;
+                    var pi = patterns[rd - 1][2][sessionStorage._code].redist;
+                    $("#last_hA").text(hA);
+                    $("#last_hB").text(hB);
+                    $("#last_my").text(strip(tH));
+                    var ct = 0;
+                    for (var i = 0; i < allPlayers.length; i++) {
+                        // console.log(allPlayers[i].code + ": " + myActions[rd-1][1][allPlayers[i].code]);
+                        ct = ct + myActions[rd - 1][1][allPlayers[i].code];
+                    }
+                    ct = Math.abs(ct);
+                    $("#last_ct").text(strip(ct));
+                    $("#last_re").text(strip(pi + ct));
+                }
+
+                if (model.chat_range == 0) {
+                    // $("#txt_to").attr("size", 3);
+                    $("<option value='0' selected>所有人</option>").appendTo("#txt_to");
+                    $("<option value='1'>同盟</option>").appendTo("#txt_to");
+                    $("<option value='2'>对手</option>").appendTo("#txt_to");
+                } else if (model.chat_range == 1) {
+                    $("#txt_to").prop("disabled", true);
+                    $("#txt_to").attr("size", 1);
+                    $("<option value='0' selected>Everyone</option>").appendTo("#txt_to");
+                } else if (model.chat_range == 2) {
+                    $("#txt_to").prop("disabled", true);
+                    $("#txt_to").attr("size", 1);
+                    $("<option value='1' selected>Alliance</option>").appendTo("#txt_to");
+                }
+
+                if (model.chat_emoji == 1) {
+                    $("#txt_emoji").show();
+                }
+
+                if (model.chat_text == 0) {
+                    $("#div_free").show();
+                } else {
+                    $("#div_limited").show();
+                    for (var i = 0; i < model.chat_limit.length; i++) {
+                        $("<option value='" + i + "'>" + model.chat_limit[i] + "</option>").appendTo("#txt_limited");
+                    }
+                }
+
+                updateMsg();
+            }
+        });
+    });
+
+    function sendMsg() {
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 6},
+            success: function (json) {
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+
+                var towho = $("#txt_to").val();
+                var msg = "";
+
+                if (model.chat_emoji == 1) {
+                    // console.log($("#txt_emoji").val());
+                    msg = msg + $("#txt_emoji").find("option:selected").text();
+                }
+
+                if (model.chat_text == 0) {
+                    msg = msg + $("#txt_free").val();
+                } else {
+                    msg = msg + $("#txt_limited").find("option:selected").text();
+                }
+
+                console.log(msg);
+
+                if (msg.length > 0) {
+                    $.getJSON("/servlet/chat", {
+                        group: sessionStorage._group,
+                        code: sessionStorage._code,
+                        action: "ADD",
+                        msg: msg,
+                        to: towho
+                    });
+                }
+            }
+        });
+    }
+
+    //更新消息
+    function updateMsg() {
+        $.getJSON("/servlet/chat", {group: sessionStorage._group, code: sessionStorage._code, action: "GET", time: last_msg}, function(json, state) {
+            if (!json.msg) {
+                return;
+            }
+            // 收到消息签滚动条是否在底部
+            var toBottom = false;
+            var nDivHeight = $("#msgWindow").height();
+            var nScrollHeight = $("#msgWindow").scrollHeight;
+            var nScrollTop = $("#msgWindow").scrollTop;
+            if (nScrollTop + nDivHeight >= nScrollHeight * 0.95)
+                toBottom = true;
+            else
+                toBottom = false;
+
+            for (var i = 0; i < json.msg.length; i++) {
+                var t = new Date();
+                t.setTime(json.msg[i].time);
+                $("#msgWindow").append("<p style='line-height: 115%'><strong style='color: #245269'>[" + json.msg[i].sender + "@" + json.msg[i].role + " (" + t.getHours() + ":" + t.getMinutes() + ":" + t.getSeconds() + ")]</strong>&nbsp;&nbsp;&nbsp;" + json.msg[i].content + "</p>");
+            }
+            if (json.msg.length > 0)
+                last_msg = json.msg[json.msg.length-1].time + 1;
+
+            if (toBottom) {
+                // $("#msgWindow > p:last")[0].scrollIntoView();
+                $("#msgWindow")[0].scrollTop = $("#msgWindow")[0].scrollHeight;
+            }
+        });
+        if (parseInt(localStorage._chat) == 1)
+            setTimeout("updateMsg()", 500);
+    }
+</script>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../images/logo64.png">
+    <title>EPIC - Experimental Platform of Interacting Commons</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/epic.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            jax: ["input/TeX", "output/HTML-CSS"],
+            extensions: ["tex2jax.js"],
+            tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+        });
+        MathJax.Hub.Register.StartupHook("onLoad",function () {
+            MathJax.Hub.Config({
+                elements: document.querySelectorAll(".mathjax"),
+            });
+        });
+    </script>
+    <!--<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-AMS_HTML-full"></script>-->
+    <!--
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    -->
+    <script type="text/javascript"
+            src="/js/mathJax/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+</head>
+<!-- Body -->
+<body>
+<!-- Fixed navbar -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><img src="../images/txtlogo64.png" height="40"></a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a style="display: none" id="restart_exp" href="#" onclick="reconf(); return false;">Restart</a>
+                </li>
+                <li>
+                    <a style="display: none" id="load_export" href="data.html" target="view_window">Data</a>
+                </li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+<!-- Container -->
+<div id="mainbody" class="container"></div>
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p class="text-muted text-right">
+            YONG MIN | <a href="http://www.zjut.edu.cn/" target="view_window">Zhejiang
+            Univeristy of Technology</a> | version 1 | <a href="mailto: myong@zjut.edu.cn">myong@zjut.edu.cn</a>
+        </p>
+    </div>
+</footer>
+<!-- Bootstrap core JavaScript -->
+<!--
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="./js/jquery.min.js"><\/script>')</script>
+-->
+<script src="/js/jquery-3.2.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/chart.bundle.js"></script>
+<script>
+    $(document).ready(function () {
+        $.getJSON("/servlet/admin/init", {code : sessionStorage._code}, function(json, state) {
+            if (json.status == 0) {
+                load_signin();//加载登录页面
+                localStorage.clear();
+                sessionStorage.clear();
+            } else if (json.status == 1) {
+                load_config();//加载配置页面
+                $("#load_export").toggle();
+            } else {
+                load_monitor();//加载监测页面
+                $("#load_export").toggle();
+                $("#restart_exp").toggle();
+            }
+        });
+    });
+
+    function load_signin() {
+        $("#mainbody").empty();
+        $("#mainbody").load("signin.html");
+    }
+
+    function load_config() {
+        $("#mainbody").empty();
+        $("#mainbody").load("config.html");
+    }
+
+    function load_monitor() {
+        $("#mainbody").empty();
+        $("#mainbody").load("monitor.html");
+    }
+
+    function reconf() {
+        $.getJSON("/servlet/admin/ic/restart", {code : sessionStorage._code}, function(json, state) {
+            location.reload();
+        });
+    }
+
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+</script>
+</body>
+</html>

@@ -1,0 +1,56 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="">
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><h1>Instruction（指南）</h1></div>
+        <div class="col-md-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <p>在这个阶段，您可以在倒计时结束之前了解系统操作和社会生态系统模型。本次实验介绍了一个新的基于网络的行为实验平台，即交互共享实验平台（EPIC），用于检查社会 - 生态系统中的社会经济假设。 EPIC在为行为游戏提供一个通用且高度可定制的平台方面独树一帜，这些游戏使用相互依存的资源，这有助于理解利益相关者在基于生态系统的管理中的行为特征。</p>
+
+            <!--<video width="900" height="500" controls autoplay>-->
+                <!--<source src="video/epicins.mp4" type="video/mp4">-->
+            <!--</video>-->
+
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+    <hr>
+</div>
+<div class="row">
+    <div class="col-md-2"/>
+    <div class="col-md-8 text-justify mathjax" id="full_inst">
+    </div>
+    <div class="col-md-2"/>
+</div>
+<script>
+    $(document).ready(function() {
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 2},
+            success: function (json) {
+                var slides = json.slide;
+                $("#full_inst").empty();
+                $(slides[1]).appendTo("#full_inst");
+            }
+        });
+    });
+</script>

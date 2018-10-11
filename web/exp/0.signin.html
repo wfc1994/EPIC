@@ -1,0 +1,124 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div class="row">
+    <div class="col-md-4"></div>
+    <div class="col-md-4">
+        <br/>
+        <form class="form-signin" onsubmit="sign_in(); return false;">
+            <h2 class="form-signin-heading">Please sign in</h2>
+            <label for="signin_code" class="sr-only">Code</label>
+            <input type="text" id="signin_code" class="form-control" placeholder="User code" required autofocus/>
+
+            <p></p>
+            <label for="signin_password" class="sr-only">Password</label>
+            <input type="password" id="signin_password" class="form-control" placeholder="Password" required/>
+
+            <p></p>
+            <button id="loginBtn" class="btn btn-lg btn-primary btn-block">Sign in</button>
+        </form>
+    </div>
+    <div class="col-md-4"></div>
+</div>
+<script>
+    function sign_in() {
+        var scode = $('input#signin_code').val();
+        var spassword = $('input#signin_password').val();
+        var i;
+        $.getJSON("/servlet/signin", {code : scode, password : spassword}, function(json, state) {
+            if (json.login) {
+                sessionStorage._group = json.group;
+                sessionStorage._code = json.code;
+                sessionStorage._role = json.role;
+                //waiting4instruct();
+                if ((sessionStorage._group != null) && (sessionStorage._code != null)) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/servlet/waiting4main",
+                        data: {group: sessionStorage._group, code: sessionStorage._code, stage: 0},
+                        success: function (json) {
+
+                            localStorage._duration = json.d_time*1000;
+
+                            if(parseInt(json.d_status)==0){
+                                i = 1;
+                            }
+                            else{
+                                i = parseInt(json.d_status);
+                            }
+                            switch (i) {
+                                // case 0:
+                                //     load_signin();
+                                //     break;
+                                case 1:
+                                    waiting4instruct();
+                                    break;
+                                case 2:
+                                    load_instruct();
+                                    break;
+                                case 3:
+                                    waiting4survey();
+                                    break;
+                                case 4:
+                                    load_survey();
+                                    break;
+                                case 5:
+                                    waiting4communication();
+                                    break;
+                                case 6:
+                                    load_communication();
+                                    break;
+                                case 7:
+                                    waiting4decision();
+                                    break;
+                                case 8:
+                                    load_decision();
+                                    break;
+                                case 9:
+                                    waiting4redistribution();
+                                    break;
+                                case 10:
+                                    load_redistribution();
+                                    break;
+                                case 11:
+                                    waiting4process();
+                                    break;
+                                case 12:
+                                    load_process();
+                                    break;
+                                case 13:
+                                    waiting4next();
+                                    break;
+                                case 14:
+                                    waiting4questionnaire();
+                                    break;
+                                case 15:
+                                    load_questionnaire();
+                                    break;
+                                // case 16:
+                                //     ending();
+                                //     break;
+                            }
+
+                        }
+                    });
+                }
+            } else {
+                alert("Please input correct user code and password!");
+            }
+        });
+    }
+</script>

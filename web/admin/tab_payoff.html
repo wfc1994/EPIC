@@ -1,0 +1,104 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify">
+            You need to define how the player converts the gains in the game into monetized incomes in the real world.
+        </p>
+    </div>
+    <div class="col-md-8">
+        <div class="conf-content text-left">
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Unit </strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <select id="pf_unit" class="form-control input-sm">
+                        <option selected>USD</option>
+                        <option>CNY</option>
+                        <option>EUR</option>
+                        <option>JPY</option>
+                        <option>GBP</option>
+                        <option>CAD</option>
+                        <option>HKD</option>
+                        <option>AUD</option>
+                        <option>SUR</option>
+                    </select>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Appearance fee</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="pf_appearance" type="number" class="form-control input-sm" value="0"/>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Price per token of A</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="pf_a_price" type="number" class="form-control input-sm" value="1"/>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Price per token of B</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="pf_b_price" type="number" class="form-control input-sm" value="1"/>
+                </div>
+            </div>
+        </div>
+        <p></p>
+        <button class="btn btn-default btn-sm" onclick="set_payoff(); return false;">Save</button>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        if (!!localStorage.conf_payoff_unit) {
+            $("#pf_unit").find("option[text='" + JSON.parse(localStorage.conf_payoff_unit) + "']").attr("selected", true);
+        }
+
+        if (!!localStorage.conf_payoff_appearance) {
+            $("#pf_appearance").val(localStorage.conf_payoff_appearance);
+        }
+
+        if (!!localStorage.conf_payoff_a_price) {
+            $("#pf_a_price").val(localStorage.conf_payoff_a_price);
+        }
+
+        if (!!localStorage.conf_payoff_b_price) {
+            $("#pf_b_price").val(localStorage.conf_payoff_b_price);
+        }
+    });
+
+    function set_payoff() {
+        var apf = parseFloat($("#pf_appearance").val());
+        var vpA = parseFloat($("#pf_a_price").val());
+        var vpB = parseFloat($("#pf_b_price").val());
+
+        if (isNaN(vpA) || vpA < 0 || isNaN(vpB) || vpB < 0 || isNaN(apf) || apf < 0) {
+            alert("Payoff should be positive number!");
+            return;
+        }
+
+        localStorage.conf_payoff_unit = JSON.stringify($("#pf_unit").find("option:selected").text());
+        localStorage.conf_payoff_appearance = JSON.stringify(apf);
+        localStorage.conf_payoff_a_price = JSON.stringify(vpA);
+        localStorage.conf_payoff_b_price = JSON.stringify(vpB);
+
+        alert("Saved!");
+    }
+</script>

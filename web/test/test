@@ -1,0 +1,26 @@
+<body>
+    <div>
+        <form>
+            <input type="text">
+        </form>
+        <button>submit</button>
+    </div>
+</body>
+
+<script>
+    $("button").click(function(){
+        var txt = $("input").val();
+        console.log(txt);
+
+        $.post(/admin/index, txt, function(data){
+            if(data.msg == 1){
+                alert('提交成功');
+            }else if(data.msg == 0){
+                alert('内容不能为空');
+            }else{
+                alert('参数错误！');
+            }
+        },'json')
+    });
+</script>
+

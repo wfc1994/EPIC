@@ -1,0 +1,158 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify">
+            Players can chat with others in two modes. The first mode is the free mode, which allows players inputting any text. In the second mode, on the contrary, players only can use a set of pre-defined messages provided by the experimenter. In addition to text chat, EPIC also allow players only chatting with smileys in images. The range of communication can be restricted by the experimenter to everyone, alliance (i.e., players in the same section), or unlimited (i.e., players can autonomously choose the target during chatting).
+        </p>
+    </div>
+    <div class="col-md-8">
+        <div class="conf-content text-left">
+            <div class="row">
+                <div class="col-md-4 text-left"><strong>Chat Smileys</strong></div>
+                <div class="col-md-8 text-left form-inline">
+                    <select id="chat_emoji" class="form-control input-sm">
+                        <option value="0" selected>NO</option>
+                        <option value="1">YES</option>
+                    </select>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-4 text-left"><strong>Chat text type</strong></div>
+                <div class="col-md-8 text-left form-inline">
+                    <select id="chat_text" class="form-control input-sm">
+                        <option value="0" selected>Free</option>
+                        <option value="1">Limited</option>
+                    </select>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-4 text-left"><strong>Chat range</strong></div>
+                <div class="col-md-8 text-left form-inline">
+                    <select id="chat_range" class="form-control input-sm">
+                        <option value="0" selected>Unlimited</option>
+                        <option value="1">Everyone</option>
+                        <option value="2">Alliance</option>
+                    </select>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-4 text-left"><strong>Pre-defined message file</strong></div>
+                <div class="col-md-8 text-left form-inline">
+                    <input id="chat_limit" class="form-control input-sm" type="file"/>
+                    <button class="btn btn-default btn-sm" onclick="chat_limit_import(); return false;">Read</button>
+                    <button class="btn btn-default btn-sm" onclick="msg_clear(); return false;">Clear</button>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="row">
+                <div class="col-md-4 text-left"><strong>* Loaded Messages</strong></div>
+                <div class="col-md-8">
+                    <table class="table table-striped">
+                        <tbody id="chat_limit_txt">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <p class="text-left">
+            <br>
+            <button class="btn btn-default btn-sm" onclick="set_comm(); return false;">Save</button>
+        </p>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        if (!!localStorage.conf_chat_emoji) {
+            $("#chat_emoji").val(JSON.parse(localStorage.conf_chat_emoji));
+        }
+
+        if (!!localStorage.conf_chat_text) {
+            $("#chat_text").val(JSON.parse(localStorage.conf_chat_text));
+        }
+
+        if (!!localStorage.conf_chat_range) {
+            $("#chat_range").val(JSON.parse(localStorage.conf_chat_range));
+        }
+
+        if (!!localStorage.conf_chat_limit) {
+            // $("#chat_limit_txt").text(JSON.parse(localStorage.conf_chat_limit));
+            msg_show();
+        } else {
+            localStorage.conf_chat_limit = JSON.stringify([]);
+        }
+    });
+
+    function set_comm() {
+        if (parseInt($("#chat_text").val()) == 1) {
+            if (!localStorage.conf_chat_limit) {
+                alert("You should provide a txt file (semicolon separated) containing usable messages in the chat!");
+                return;
+            }
+        }
+
+        localStorage.conf_chat_emoji = JSON.stringify(parseInt($("#chat_emoji").val()));
+        localStorage.conf_chat_text = JSON.stringify(parseInt($("#chat_text").val()));
+        localStorage.conf_chat_range = JSON.stringify(parseInt($("#chat_range").val()));
+
+        if (!localStorage.conf_chat_limit) {
+            localStorage.conf_chat_limit = JSON.stringify([]);
+        }
+
+        alert("Saved!");
+    }
+
+    function chat_limit_import() {
+        var cfile = $('#chat_limit')[0].files[0];
+        if (!cfile) {
+            return false;
+        }
+        var reader = new FileReader();
+        reader.onload = function(evt) {
+            var fileString = evt.target.result;
+            console.log(fileString);
+            var msgs = fileString.split(";");
+            $("#chat_limit_txt").empty();
+            for (var i = 0; i < msgs.length; i++) {
+                msgs[i] = msgs[i].trim();
+            }
+            localStorage.conf_chat_limit = JSON.stringify(msgs);
+            msg_show();
+        };
+        //读取文件内容
+        reader.readAsText(cfile);
+        return true;
+    }
+
+    function msg_clear() {
+        localStorage.conf_chat_limit = JSON.stringify([]);
+        msg_show();
+    }
+
+    function msg_show() {
+        var msgs = JSON.parse(localStorage.conf_chat_limit);
+        $("#chat_limit_txt").empty();
+        for (var i = 0; i < msgs.length; i++) {
+            $("<tr><td>" + msgs[i] + "</td></tr>").appendTo("#chat_limit_txt");
+        }
+    }
+</script>

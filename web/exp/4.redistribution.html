@@ -1,0 +1,197 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<div xmlns="http://www.w3.org/1999/html">
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><h1>再分配 (<span id="curr_round"></span>/<span id="total_round"></span>)</h1></div>
+        <div class="col-md-2"></div>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8"><p>通过惩罚或奖励的方式来激励玩家之间合作。在这个阶段，每个玩家可以使用一轮收获的令牌来减少或增加另一个玩家的资源。惩罚或奖励的总成本不能超过当前玩家收到的令牌。需要注意的是，一定要点击“再分配”按钮才能提交数据。</p></div>
+        <div class="col-md-2"></div>
+    </div>
+    <hr>
+</div>
+<div class="row">
+    <div class="col-md-3"/>
+    <div class="col-md-6">
+        <br class="text-left">
+        <!--&nbsp;&nbsp;In this round, you have harvested <span id="r_available" class="label label-success"></span> resource items, which can be used to <span id="r_method" class="label label-danger"></span> other players.-->
+        &nbsp;&nbsp;在这个回合中，你收获了 <span id="r_available" class="label label-success"></span> 资源项目, 可用于到 <span id="r_method" class="label label-danger"></span> 其他玩家中.
+        </p>
+        <table class="table">
+            <thead>
+            <tr>
+                <th>玩家</th>
+                <th width="10%">角色</th>
+                <th>收获</th>
+                <th>给予</th>
+            </tr>
+            </thead>
+            <tbody id="r_donates">
+
+            </tbody>
+        </table>
+        <p class="text-center">
+            <button type="button" class="btn btn-primary btn-sm" onclick="redist(); return false;">再分配</button>
+        </p>
+    </div>
+    <div class="col-md-3"/>
+</div>
+<script>
+    var r_available_items = 0;
+
+    $(document).ready(function() {
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 10},
+            success: function (json) {
+                // 当前轮次
+                //var rd = parseInt(localStorage.d_current);
+                var rd = parseInt(json.current);
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+                //var myActions = JSON.parse(d_action);
+                var myActions = JSON.parse(json.d_action);
+                //var allActions = JSON.parse(d_action_all);
+                var allActions = JSON.parse(json.d_action_all);
+                //var allPlayers = JSON.parse(localStorage.d_players);
+                var allPlayers = json.all_players;
+
+                $("#curr_round").text(rd + 1);
+                //$("#total_round").text(localStorage.d_round);
+                $("#total_round").text(json.round);
+                if (model.punishment_type == 0) {
+                    redist();
+                    return;
+                } else if (model.punishment_type == 1) {
+                    $("#r_method").text("惩罚");
+                } else {
+                    $("#r_method").text("奖励");
+                }
+
+                for (var i = 0; i < myActions[rd][0].length; i++) {
+                    for (var j = 0; j < myActions[rd][0].length; j++) {
+                        r_available_items += myActions[rd][0][i][j];
+                    }
+                }
+                $("#r_available").text(r_available_items);
+
+                // 初始化显示
+                console.log(JSON.stringify(allPlayers));
+                for (var i = 0; i < allPlayers.length; i++) {
+                    var code = allPlayers[i].code;
+                    if (code == sessionStorage._code)
+                        continue;
+                    var mat = allActions[rd][code][0];
+                    var h = 0;
+                    for (var x = 0; x < mat.length; x++) {
+                        for (var y = 0; y < mat[i].length; y++) {
+                            h += mat[x][y];
+                        }
+                    }
+                    var tabline = "<tr><td>" + code + "</td><td>" + allPlayers[i].role + "</td><td>" + h + "</td><td><input class='form-inline form-control input-sm' id='d2" + code + "' type='number' min='0' step='1' value='0' size='5'></td></tr>";
+                    $(tabline).appendTo("#r_donates");
+                }
+            }
+        });
+    });
+
+    function redist() {
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 10},
+            success: function (json) {
+                // var rd = parseInt(localStorage.d_current);
+                var rd = parseInt(json.current);
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+                //var myActions = JSON.parse(d_action);
+                var myActions = JSON.parse(json.d_action);
+                //var allPlayers = JSON.parse(localStorage.d_players);
+                var allPlayers = json.all_players;
+
+                var totr = 0;
+                for (var i = 0; i < allPlayers.length; i++) {
+                    if (allPlayers[i].code == sessionStorage._code)
+                        continue;
+                    var x = $("#d2" + allPlayers[i].code).val();
+                    if (parseInt(x) != x || x < 0) {
+                        alert("Cost must be non-negative integer: " + allPlayers[i].code);
+                        return;
+                    }
+                    totr = totr + parseInt(x);
+                }
+                if (r_available_items < totr) {
+                    console.log(r_available_items + " to " + totr);
+                    alert("You do not have enough tokens!");
+                    return;
+                }
+
+                var q = 0;
+                if (model.punishment_type == 1)
+                    q = -1;
+                else
+                    q = 1;
+
+                myActions[rd][1] = new Object();
+                for (var i = 0; i < allPlayers.length; i++) {
+                    if (allPlayers[i].code != sessionStorage._code) {
+                        myActions[rd][1][allPlayers[i].code] = $("#d2" + allPlayers[i].code).val() * q;
+                    } else {
+                        myActions[rd][1][allPlayers[i].code] = 0;
+                    }
+                }
+                console.log(JSON.stringify(myActions[rd][1]));
+
+                var d_action = JSON.stringify(myActions);
+                $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 18, action : d_action}, success: function (json) {}});
+                _stop = true;
+            }
+        });
+    }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

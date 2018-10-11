@@ -1,0 +1,126 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+welcome  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify mathjax">
+            After harvest, each player can use 1 token harvested in the round to decrease or increase another player's resources by $r$ tokens, where $r$ is the rate of punishment or reward. The total cost for punishment or reward cannot exceed the tokens received by the player in the current round. <strong>You should define the method and rate of redistribution.</strong>
+        </p>
+    </div>
+    <div class="col-md-8">
+        <div class="conf-content text-center">
+            <div class="row">
+                <div class="col-md-8">
+                    <div class="text-center form-inline">
+                        <label class="input-sm"><input type="radio" name="punish_type" value="0" checked/> None</label>
+                        <label class="input-sm"><input type="radio" name="punish_type" value="1"/> Punishment</label>
+                        <label class="input-sm"><input type="radio" name="punish_type" value="2"/> Reward</label>
+                    </div>
+                    <br>
+                    <table class="table table-bordered">
+                        <tbody>
+                        <tr>
+                            <td style="padding: 5px"></td>
+                            <td style="padding: 5px"></td>
+                            <td style="padding: 5px; border-bottom: solid" colspan="2"><strong>Punish/Reward</strong></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px"></td>
+                            <td style="padding: 5px"></td>
+                            <td style="padding: 5px">Sector A</td>
+                            <td style="padding: 5px">Sector B</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px; border-right: solid; vertical-align: middle" rowspan="2"><strong>Cost</strong></td>
+                            <td style="padding: 5px">1 A-token</td>
+                            <td style="padding: 5px"><input id="rrateAA" type="number" class="form-control input-sm" min="0" step="0.1" value="1"/></td>
+                            <td style="padding: 5px"><input id="rrateAB" type="number" class="form-control input-sm" min="0" step="0.1" value="1"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 5px">1 B-token</td>
+                            <td style="padding: 5px"><input id="rrateBA" type="number" class="form-control input-sm" min="0" step="0.1" value="1"/></td>
+                            <td style="padding: 5px"><input id="rrateBB" type="number" class="form-control input-sm" min="0" step="0.1" value="1"/></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+            <!--
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Rate for Sector A</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="rrateA" type="number" class="form-control input-sm" min="0" max="99" step="0.1" value="1"/>
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Rate for Sector B</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="rrateB" type="number" class="form-control input-sm" min="0" max="99" step="0.1" value="1"/>
+                </div>
+            </div>
+            -->
+            <p></p>
+            <div class="text-center">
+                <button class="btn btn-default btn-sm" onclick="set_punish(); return false;">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        if (!!localStorage.conf_punish_type) {
+            $("input[name='punish_type'][value='" + localStorage.conf_punish_type + "']").attr("checked", true);
+        }
+
+        if (!!localStorage.conf_punish_rate_AA) {
+            $("#rrateAA").val(localStorage.conf_punish_rate_AA);
+        }
+
+        if (!!localStorage.conf_punish_rate_AB) {
+            $("#rrateAB").val(localStorage.conf_punish_rate_AB);
+        }
+
+        if (!!localStorage.conf_punish_rate_BA) {
+            $("#rrateBA").val(localStorage.conf_punish_rate_BA);
+        }
+
+        if (!!localStorage.conf_punish_rate_BB) {
+            $("#rrateBB").val(localStorage.conf_punish_rate_BB);
+        }
+    });
+
+    function set_punish() {
+        var rrAA = parseFloat($("#rrateAA").val());
+        var rrAB = parseFloat($("#rrateAB").val());
+        var rrBA = parseFloat($("#rrateBA").val());
+        var rrBB = parseFloat($("#rrateBB").val());
+
+        if (rrAA < 0 || rrAB < 0 || rrBA < 0 || rrBB < 0) {
+            alert("Rate should be positive number!");
+            return;
+        }
+
+        localStorage.conf_punish_type = JSON.stringify(parseInt($("input[name='punish_type']:checked").val()));
+        localStorage.conf_punish_rate_AA = JSON.stringify(rrAA);
+        localStorage.conf_punish_rate_AB = JSON.stringify(rrAB);
+        localStorage.conf_punish_rate_BA = JSON.stringify(rrBA);
+        localStorage.conf_punish_rate_BB = JSON.stringify(rrBB);
+
+        alert("Saved");
+    }
+</script>

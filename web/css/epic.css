@@ -1,0 +1,150 @@
+/*
+ * Copyright 2017 Yong Min
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    padding-top: 70px;
+    margin-bottom: 60px;
+}
+
+/* Navigator Bar */
+
+.navbar-header .navbar-brand {
+    float: none;
+    display: inline-block;
+    vertical-align: middle;
+    padding-top: 4px;
+    padding-bottom: 4px;
+}
+
+/* Footer */
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    /* Set the fixed height of the footer here */
+    height: 40px;
+    background-color: #f5f5f5;
+}
+
+.footer .container {
+    width: 100%;
+    background-color: #f5f5f5;
+    font-size: small;
+}
+
+.container .text-muted {
+    margin: 12px 0;
+    font-size: medium;
+    color: #222222;
+}
+
+/* Tab */
+
+.tab-pane {
+    padding-top: 20px;
+}
+
+/* Signin */
+
+.form-signin {
+    max-width: 330px;
+    padding: 15px;
+    margin: 0 auto;
+}
+
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+    margin-bottom: 10px;
+}
+
+.form-signin .checkbox {
+    font-weight: normal;
+}
+
+.form-signin .form-control {
+    position: relative;
+    height: auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.form-signin .form-control:focus {
+    z-index: 2;
+}
+
+.form-signin input[type="email"] {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+/* Modal */
+
+.modal-body {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Configuration */
+div.conf-content {
+    padding-top: 50px;
+}
+
+textarea.java {
+    font-family: 'Courier New', Monospace;
+    font-size: small;
+}
+
+table.form-custom {
+    border-collapse: separate;
+    border-spacing: 0px 10px;
+}
+
+.lattice {
+    border-collapse: separate;
+    border-spacing: 2px;
+    border: 1px solid slategray;
+    border-radius: 2px;
+    empty-cells: show;
+}
+.cell {
+    border: 1px solid lightgray;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    vertical-align: middle;
+}
+.chess {
+    width: 28px;
+    height: 28px;
+    vertical-align: middle;
+    text-align: center;
+}

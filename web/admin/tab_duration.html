@@ -1,0 +1,118 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify">
+            You should define the temporal lengths of all stages (in seconds), which are used to control the process of the experiment and keep all players synchronized. If the duration of a stage is set to 0, the stage will be skipped.
+        </p>
+    </div>
+    <div class="col-md-8">
+        <div class="conf-content text-center">
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Instruction</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="inst_duration" type="number" class="form-control input-sm" value="0" min="0" size="10"/> Seconds
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Test</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="test_duration" type="number" class="form-control input-sm" value="0" min="0"/> Seconds
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Communication</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="com_duration" type="number" class="form-control input-sm" value="0" min="0"/> Seconds
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Decision</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="decision_duration" type="number" class="form-control input-sm" value="5" min="0"/> Seconds
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Punishment/Reward</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="punish_duration" type="number" class="form-control input-sm" value="1" min="0"/> Seconds
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Round summary</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="disp_duration" type="number" class="form-control input-sm" value="1" min="0"/> Seconds
+                </div>
+            </div>
+            <p></p>
+            <div class="row">
+                <div class="col-md-3 text-left"><strong>Questionnaire</strong></div>
+                <div class="col-md-9 text-left form-inline">
+                    <input id="ques_duration" type="number" class="form-control input-sm" value="1" min="0"/> Seconds
+                </div>
+            </div>
+        </div>
+        <p></p>
+        <button class="btn btn-default btn-sm" onclick="set_duration(); return false;">Save</button>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //放入duration数据
+        if (!localStorage.conf_instruction_duration)
+            return;
+        $("#inst_duration").val(JSON.parse(localStorage.conf_instruction_duration));
+        $("#test_duration").val(JSON.parse(localStorage.conf_test_duration));
+        $("#com_duration").val(JSON.parse(localStorage.conf_com_duration));
+        $("#decision_duration").val(JSON.parse(localStorage.conf_decision_duration));
+        $("#punish_duration").val(JSON.parse(localStorage.conf_punish_duration));
+        $("#disp_duration").val(JSON.parse(localStorage.conf_disp_duration));
+        $("#ques_duration").val(JSON.parse(localStorage.conf_ques_duration));
+    });
+
+    //设置duration
+    function set_duration() {
+        var d_ins = parseInt($("#inst_duration").val());
+        var d_tst = parseInt($("#test_duration").val());
+        var d_com = parseInt($("#com_duration").val());
+        var d_dec = parseInt($("#decision_duration").val());
+        var d_pun = parseInt($("#punish_duration").val());
+        var d_dis = parseInt($("#disp_duration").val());
+        var d_que = parseInt($("#ques_duration").val());
+
+        if (d_ins < 0 || d_tst < 0 || d_com < 0 || d_dec < 0 || d_dis < 0 || d_pun < 0 || d_que < 0) {
+            alert("Duration should be non-negative!");
+            return;
+        }
+
+        localStorage.conf_instruction_duration = JSON.stringify(d_ins);
+        localStorage.conf_test_duration = JSON.stringify(d_tst);
+        localStorage.conf_com_duration = JSON.stringify(d_com);
+        localStorage.conf_decision_duration = JSON.stringify(d_dec);
+        localStorage.conf_punish_duration = JSON.stringify(d_pun);
+        localStorage.conf_disp_duration = JSON.stringify(d_dis);
+        localStorage.conf_ques_duration = JSON.stringify(d_que);
+
+        alert("Saved");
+    }
+</script>

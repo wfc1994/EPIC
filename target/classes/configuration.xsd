@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://cpir.myong.zjut.edu.cn/configuration"
+           xmlns="http://cpir.myong.zjut.edu.cn/configuration"
+           elementFormDefault="qualified">
+
+    <xs:simpleType name="_role">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="PLAYER"/>
+            <xs:enumeration value="PREY"/>
+            <xs:enumeration value="PREDATOR"/>
+            <xs:enumeration value="COMPETITOR"/>
+            <xs:enumeration value="SUBCOMPETITOR"/>
+            <xs:enumeration value="SUPCOMPETITOR"/>
+            <xs:enumeration value="MUTUALIST"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:element name="configuration">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="experiment" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:attribute name="id" type="xs:string" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="administrator" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:attribute name="code" type="xs:string"/>
+                        <xs:attribute name="password" type="xs:string"/>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="group" minOccurs="1" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="player" minOccurs="1" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="code" type="xs:string"/>
+                                    <xs:attribute name="password" type="xs:string"/>
+                                    <xs:attribute name="role" type="_role"/>
+                                    <xs:attribute name="isAI" type="xs:boolean"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="id" type="xs:positiveInteger"/>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="model" minOccurs="1" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="param" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="name" type="xs:string"/>
+                                    <xs:attribute name="value" type="xs:string"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="class" type="xs:string" use="required"/>
+                    </xs:complexType>
+                </xs:element>
+
+                <xs:element name="stages" maxOccurs="1">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <!-- 登录和保存登录的时间长度 -->
+                            <xs:element name="signin" minOccurs="1" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:attribute name="duration" type="xs:time" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <!-- 学习 -->
+                            <xs:element name="instruct" minOccurs="1" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:choice>
+                                            <xs:element name="slide" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+                                            <xs:element name="video" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                                        </xs:choice>
+                                    </xs:sequence>
+                                    <xs:attribute name="duration" type="xs:time" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <!-- 测验 -->
+                            <xs:element name="survey" minOccurs="1" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="question" minOccurs="1" maxOccurs="unbounded">
+                                            <xs:complexType>
+                                                <xs:sequence>
+                                                    <xs:element name="subject" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                                                    <xs:element name="option" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+                                                    <xs:element name="answer" type="xs:string" minOccurs="1" maxOccurs="1"/>
+                                                </xs:sequence>
+                                                <xs:attribute name="score" type="xs:nonNegativeInteger" use="required"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="threshold" type="xs:nonNegativeInteger" use="required"/>
+                                    <xs:attribute name="duration" type="xs:time" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+
+                            <!-- 决策 -->
+                            <xs:element name="game" minOccurs="1" maxOccurs="1">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="communication" minOccurs="1" maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:attribute name="duration" type="xs:time" use="required"/>
+                                                <xs:attribute name="enable" type="xs:boolean" use="required"/>
+                                            </xs:complexType>
+                                        </xs:element>
+
+                                        <xs:element name="decision" minOccurs="1" maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:attribute name="duration" type="xs:time" use="required"/>
+                                                <xs:attribute name="content" type="xs:string" use="required"/>
+                                            </xs:complexType>
+                                        </xs:element>
+
+                                        <xs:element name="redistribution" minOccurs="0" maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:attribute name="duration" type="xs:time" use="required"/>
+                                                <xs:attribute name="content" type="xs:string" use="required"/>
+                                            </xs:complexType>
+                                        </xs:element>
+
+                                        <xs:element name="process" minOccurs="1" maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:attribute name="duration" type="xs:time" use="required"/>
+                                                <xs:attribute name="content" type="xs:string" use="required"/>
+                                            </xs:complexType>
+                                        </xs:element>
+
+                                        <xs:element name="final" minOccurs="1" maxOccurs="1">
+                                            <xs:complexType>
+                                                <xs:attribute name="content" type="xs:string" use="required"/>
+                                            </xs:complexType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                    <xs:attribute name="round" type="xs:positiveInteger" use="required"/>
+                                    <xs:attribute name="inherit" type="xs:boolean" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -1,0 +1,453 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify">
+            In EPIC, A new round is created (advancing the round by 1), according to five rules (harvest, reproduction, death, movement, and competition) that determine the new state of each cell based on the current state of the cell and the states of the cells in its neighborhood:
+        </p>
+        <p class="text-justify mathjax">
+            <strong>(a) Harvest rule.</strong> For a cell, if the resource token that it contains is selected by players, the token will be removed from the cell. The performance of the rule is controlled by human players.
+        </p>
+        <p class="text-justify mathjax">
+            <strong>(b) Reproduction rule.</strong> A resource A or B can generate an offspring token with the probability $\rho_A$ and $\rho_B$ for a cell without the same token. The value of $\rho_A$ and $\rho_B$ is calculated by a customizable function with the parameters of the numbers of A- and B-tokens within the neighborhood.
+        </p>
+        <p class="text-justify mathjax">
+            <strong>(c) Competition rule.</strong> This rule is used when two resource cannot be coexisted in a cell. When both resources generate offspring tokens in the same cell, resource A will be retained with probability $w$ (i.e., the competitive rate); otherwise, resource B will be retained ($1 - w$).
+        </p>
+        <p class="text-justify mathjax">
+            <strong>(d) Death rule.</strong> For a cell, a resource token will be removed with death probability $\beta_A$ and $\beta_B$, which are calculated by two customizable functions with the parameters of the numbers of A- and B-tokens within the neighborhood of the cell.
+        </p>
+        <p class="text-justify mathjax">
+            <strong>(e) Movement rule.</strong> This rule is optional. If movement is allowed, all resource tokens will be randomly redistributed in the grid after harvest.
+        </p>
+        <p class="text-justify mathjax">
+            Except for movement, the other four rules are simultaneously applied to update the state of the model after harvest and movement (if allowed). If the movement is defined, the behavior of players should be <strong>spatially independent</strong>.
+        </p>
+    </div>
+    <div class="col-md-8">
+        <div class="conf-content text-center">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Neighborhood
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-2">Resource A</div>
+                        <div class="col-md-4 form-inline text-left">
+                            <input id="a_ngh_0" type="number" class="input-sm form-control" min="0" max="99" value="0"/> to <input id="a_ngh_1" type="number" class="input-sm form-control" min="0" max="99" value="0"/>
+                        </div>
+                        <div class="col-md-2">Resource B</div>
+                        <div class="col-md-4 form-inline text-left">
+                            <input id="b_ngh_0" type="number" class="input-sm form-control" min="0" max="99" value="0"/> to <input id="b_ngh_1" type="number" class="input-sm form-control" min="0" max="99" value="0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="text-center">
+                    <button class="btn btn-warning btn-sm" data-toggle="modal" data-target="#myModal">
+                        <strong>Add Reproduction/Death Rule</strong>
+                    </button>
+                </div>
+                <br>
+            </div>
+
+            <div class="panel panel-danger">
+                <div class="panel-heading">
+                    Reproduction
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table id="rule_0" class="table table-condensed table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Resource A</th>
+                                    <th width="20%"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table id="rule_2" class="table table-condensed table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Resource B</th>
+                                    <th width="20%"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    Death
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <table id="rule_1" class="table table-condensed table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Resource A</th>
+                                    <th width="20%"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <table id="rule_3" class="table table-condensed table-striped">
+                                <thead>
+                                <tr>
+                                    <th>Resource B</th>
+                                    <th width="20%"></th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-warning">
+                <div class="panel-heading">
+                    Competition
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3 text-left"><strong>Coexistence</strong></div>
+                        <div class="col-md-9 text-left form-inline">
+                            <select id="ab_coexist" class="form-control input-sm">
+                                <option value="0" selected>No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p></p>
+                    <div class="row">
+                        <div class="col-md-3 text-left"><strong>Competition rate</strong></div>
+                        <div class="col-md-9 text-left form-inline">
+                            <input id="a_win" type="number" class="form-control input-sm" min="0" max="1" step="0.01" value="1.0"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-success">
+                <div class="panel-heading">
+                    Movement
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-3 text-left"><strong>Mobility</strong></div>
+                        <div class="col-md-9 text-left form-inline">
+                            <select id="ab_order" class="form-control input-sm">
+                                <option value="1" selected>No</option>
+                                <option value="0">Yes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <p></p>
+            <button class="btn btn-default btn-sm" onclick="set_dynamics(); return false;">Save</button>
+        </div>
+    </div>
+</div>
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Rule Editor</h4>
+            </div>
+            <div class="modal-body" style="height:800px">
+                <p class="text-justify">
+                    The reproduction and death rates ($\rho$ and $\beta$) must be described in the form of a set of rules. Each rule should explicitly define <strong>the interval (i.e., lower and upper boundary) of existing resource in the neighborhood</strong>, and provide the <strong>mathematical expression</strong> to calculate the rate if the number of resources in the intervals.
+                </p>
+                <hr>
+                <table>
+                    <tr>
+                        <td><strong>Target</strong></td>
+                        <td style="padding: 2px" colspan="3">
+                            <select id="for_what" class="input-sm form-control">
+                                <option value="0">A - Reproduction</option>
+                                <option value="1">A - Death</option>
+                                <option value="2">B - Reproduction</option>
+                                <option value="3">B - Death</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Resource A</strong></td>
+                        <td style="padding: 2px">
+                            <input id="a_lb" class="input-sm form-control" type="number" step="1" value="0">
+                        </td>
+                        <td style="padding: 2px">
+                            <strong>≤ a ≤</strong>
+                        </td>
+                        <td style="padding: 2px">
+                            <input id="a_ub" class="input-sm form-control" type="number" step="1" value="0">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Resource B</strong></td>
+                        <td style="padding: 2px">
+                            <input id="b_lb" class="input-sm form-control" type="number" step="1" value="0">
+                        </td>
+                        <td style="padding: 2px">
+                            <strong>≤ b ≤</strong>
+                        </td>
+                        <td style="padding: 2px">
+                            <input id="b_ub" class="input-sm form-control" type="number" step="1" value="0">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rate formula</strong></td>
+                        <td style="padding: 2px" colspan="3">
+                            <input id="eqn_txt" class="input-sm form-control" type="text" value="0">
+                        </td>
+                    </tr>
+                </table>
+                <hr>
+                <p class="text-justify" style="color: #8c8c8c">
+                    The mathematical expression can contain two parameters representing resource numbers in neighborhood ('a' and 'b'), constants (e.g. '0.3' or '1e4'), addition ($+$), subtraction ($-$), multiplication ($*$), division ($/$), power function ($pow(x,y)=x^y$), exponential function ($exp(x)=e^x$), logarithmic function ($log(x)$), absolute value ($abs(x)=|x|$), sqrt function ($sqrt(x)=\sqrt{x}$), trigonometric functions ($sin(x)$, $cos(x)$, $tan(x)$), rounding functions ($round(x)$, $ceil(x)$, $floor(x)$), maximum function ($max(x,y)$), and minimum function ($min(x,y)$).
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="editp=-1;">Cancel</button>
+                <button type="button" id="rule_btn" class="btn btn-sm btn-primary" data-dismiss="modal" onclick="add_rule();">Add</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+<script>
+    $(document).ready(function () {
+        if (!localStorage.conf_dyn_rules)
+            localStorage.conf_dyn_rules = JSON.stringify([[],[],[],[]]);
+        editp = -1;
+        show_rule();
+
+        if (!!localStorage.conf_dyn_A_neighbor) {
+            var rg = JSON.parse(localStorage.conf_dyn_A_neighbor).split("-");
+            $("#a_ngh_0").val(rg[0]);
+            $("#a_ngh_1").val(rg[1]);
+        }
+
+        if (!!localStorage.conf_dyn_B_neighbor) {
+            var rg = JSON.parse(localStorage.conf_dyn_B_neighbor).split("-");
+            $("#b_ngh_0").val(rg[0]);
+            $("#b_ngh_1").val(rg[1]);
+        }
+
+        if (!!localStorage.conf_dyn_update)
+            $("#ab_order").val(JSON.parse(localStorage.conf_dyn_update));
+
+        if (!!localStorage.conf_dyn_coexist)
+            $("#ab_coexist").val(JSON.parse(localStorage.conf_dyn_coexist));
+
+        if (!!localStorage.conf_dyn_A_win)
+            $("#a_win").val(JSON.parse(localStorage.conf_dyn_A_win));
+    });
+
+    function set_dynamics() {
+        var an0 = parseInt($("#a_ngh_0").val());
+        var an1 = parseInt($("#a_ngh_1").val());
+        var bn0 = parseInt($("#b_ngh_0").val());
+        var bn1 = parseInt($("#b_ngh_1").val());
+        var awn = parseFloat($("#a_win").val());
+
+        if (an0 < 0 || an1 < 0 || bn0 < 0 || bn1 < 0) {
+            alert("Range and area should be positive!");
+            return;
+        }
+
+        if (an0 > an1 || bn0 > bn1) {
+            alert("Range and area are invalid!");
+            return;
+        }
+
+        if (awn < 0 || awn > 1) {
+            alert("Coexistence probability should be between 0 and 1!");
+            return;
+        }
+
+        localStorage.conf_dyn_A_neighbor = JSON.stringify(an0 + "-" + an1);
+        localStorage.conf_dyn_B_neighbor = JSON.stringify(bn0 + "-" + bn1);
+        localStorage.conf_dyn_update = JSON.stringify((parseInt($("#ab_order").val())));
+        localStorage.conf_dyn_coexist = JSON.stringify(parseInt($("#ab_coexist").val()));
+        localStorage.conf_dyn_A_win = JSON.stringify(awn);
+
+        var rules = JSON.parse(localStorage.conf_dyn_rules);
+        /*
+        if (rules[0].length == 0 || rules[1].length == 0 || rules[2].length == 0 || rules[3].length == 0) {
+            alert("Rules cannot be empty!");
+            return;
+        }
+        */
+        alert("Saved");
+    }
+</script>
+
+<script>
+    String.prototype.replaceAll = function(search, replacement) {
+        var target = this;
+        return target.replace(new RegExp(search, 'g'), replacement);
+    };
+
+    var editp = -1;
+
+    function add_rule() {
+        var forwhat = $("#for_what").val();
+
+        var lbA = $("#a_lb").val();
+        var ubA = $("#a_ub").val();
+        if (lbA != parseInt(lbA) || ubA != parseInt(ubA) || ubA < lbA) {
+            alert("Resource quantity should be non-negative integer!");
+            return;
+        }
+        lbA = parseInt(lbA);
+        ubA = parseInt(ubA);
+
+        var lbB = $("#b_lb").val();
+        var ubB = $("#b_ub").val();
+        if (lbB != parseInt(lbB) || ubB != parseInt(ubB) || ubB < lbB) {
+            alert("Resource quantity should be non-negative integer!");
+            return;
+        }
+        lbB = parseInt(lbB);
+        ubB = parseInt(ubB);
+
+        var eqn0 = $("#eqn_txt").val();
+        var eqn = $("#eqn_txt").val();
+        eqn = eqn.replaceAll("log", "Math.log");
+        eqn = eqn.replaceAll("exp", "Math.exp");
+        eqn = eqn.replaceAll("pow", "Math.pow");
+        eqn = eqn.replaceAll("abs", "Math.abs");
+        eqn = eqn.replaceAll("sqrt", "Math.sqrt");
+        eqn = eqn.replaceAll("sin", "Math.sin");
+        eqn = eqn.replaceAll("cos", "Math.cos");
+        eqn = eqn.replaceAll("tan", "Math.tan");
+        eqn = eqn.replaceAll("ceil", "Math.ceil");
+        eqn = eqn.replaceAll("floor", "Math.floor");
+        eqn = eqn.replaceAll("round", "Math.round");
+        eqn = eqn.replaceAll("min", "Math.min");
+        eqn = eqn.replaceAll("max", "Math.max");
+        try {
+            var a = lbA;
+            var b = lbB;
+            console.log(a + ", " + b + ", " + eqn);
+            eval(eqn);
+        } catch (err) {
+            alert("Formula is invalid!");
+            return;
+        }
+
+        var rules = JSON.parse(localStorage.conf_dyn_rules);
+        if (editp < 0) {
+            rules[forwhat].push([lbA, ubA, lbB, ubB, eqn0]);
+        } else {
+            rules[forwhat][editp] = [lbA, ubA, lbB, ubB, eqn0];
+            editp = -1;
+            $("#rule_btn").text("Add");
+            $('#for_what').prop('disabled', false);
+        }
+        localStorage.conf_dyn_rules = JSON.stringify(rules);
+        show_rule();
+
+        $("#for_what").val(0);
+        $("#a_lb").val(0);
+        $("#a_ub").val(0);
+        $("#b_lb").val(0);
+        $("#b_ub").val(0);
+        $("#eqn_txt").val(0);
+    }
+
+    function edit_rule(t, i) {
+        editp = i;
+        $("#rule_btn").text("Edit");
+
+        var rules = JSON.parse(localStorage.conf_dyn_rules);
+        $("#for_what").val(t);
+        $('#for_what').prop("disabled", "disabled");
+        $("#a_lb").val(rules[t][i][0]);
+        $("#a_ub").val(rules[t][i][1]);
+        $("#b_lb").val(rules[t][i][2]);
+        $("#b_ub").val(rules[t][i][3]);
+        $("#eqn_txt").val(rules[t][i][4]);
+    }
+
+    function remove_rule(t, i) {
+        if (editp >= 0) {
+            alert("You are editing a rule, so cannot remove rules at the same time!");
+            return;
+        }
+        var rules = JSON.parse(localStorage.conf_dyn_rules);
+        var nrule = [];
+        for (var x = 0; x < 4; x++) {
+            if (x == t) {
+                nrule.push([]);
+                for (var j = 0; j < rules[t].length; j++)
+                    if (j != i)
+                        nrule[t].push(rules[t][j]);
+            } else {
+                nrule.push(rules[x]);
+            }
+        }
+        localStorage.conf_dyn_rules = JSON.stringify(nrule);
+        show_rule();
+    }
+
+    function show_rule() {
+        var rules = JSON.parse(localStorage.conf_dyn_rules);
+        for (var t = 0; t < 4; t++) {
+            $("#rule_" + t + " > tbody").empty();
+            for (var i = 0; i < rules[t].length; i++) {
+                var editBtn = "<a onclick='edit_rule(" + t + "," + i + ");' data-toggle='modal' data-target='#myModal'><img src='/images/editor.png'></a>";
+                var removeBtn = "<a onclick='remove_rule(" + t + "," + i + ");'><img src='/images/offline.png'></a>";
+                /*
+                var txt = "If ((a " + rules[t][i][0] + " " + rules[t][i][1] + ") & (b "
+                    + rules[t][i][2] + " " + rules[t][i][3] + ")), Rate = \""
+                    + rules[t][i][4] + "\"";
+                */
+                var v0 = "<span style='color: blue'>" + rules[t][i][0] + "</span>";
+                var v1 = "<span style='color: blue'>" + rules[t][i][1] + "</span>";
+                var v2 = "<span style='color: blue'>" + rules[t][i][2] + "</span>";
+                var v3 = "<span style='color: blue'>" + rules[t][i][3] + "</span>";
+                var v4 = "<span style='color: blue'>" + rules[t][i][4] + "</span>";
+                var txt = "IF (" + v0 + "≤a≤" + v1 + ") AND (" + v2 + "≤b≤" + v3 + "), THEN RATE=\"" + v4 + "\"";
+                var line = "<tr><td class='text-left'>" + txt + "</td><td>" + editBtn + removeBtn + "</td></tr>";
+                $(line).appendTo("#rule_" + t + " > tbody");
+            }
+        }
+    }
+</script>

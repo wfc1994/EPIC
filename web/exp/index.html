@@ -1,0 +1,739 @@
+<!DOCTYPE HTML>
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../images/logo64.png">
+    <title>EPIR - Experimental Platform of Interacting Resources</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/epic.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            jax: ["input/TeX", "output/HTML-CSS"],
+            extensions: ["tex2jax.js"],
+            tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+        });
+        MathJax.Hub.Register.StartupHook("onLoad",function () {
+            MathJax.Hub.Config({
+                elements: document.querySelectorAll(".mathjax"),
+            });
+        });
+    </script>
+    <!--<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-AMS_HTML-full"></script>-->
+    <!--
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    -->
+    <script type="text/javascript"
+            src="/js/mathJax/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+</head>
+
+<!-- Body -->
+<body>
+<!-- Fixed navbar -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-default" style="text-align: center;">
+            <ul class="nav navbar-nav" style="display: inline-block; float: none;">
+                <li>
+                    <h4>
+                        <label id="durationTime" class="label label-default"></label>
+                        <label id="player_code" class="label label-default"></label>
+                        &nbsp;
+                        <label id="player_role" class="label"></label>
+                        &nbsp;
+                        <label id="timer" class="label label-default"></label>
+                    </h4>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Container -->
+<div id="major" class="container">
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p class="text-muted text-right" style="font-size: small">
+            YONG MIN | <a href="http://www.zjut.edu.cn/" target="view_window">Zhejiang
+            Univeristy of Technology</a> | version 1 | <a href="mailto: myong@zjut.edu.cn">myong@zjut.edu.cn</a>
+        </p>
+    </div>
+</footer>
+
+<!-- Bootstrap core JavaScript -->
+<!--
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="./js/jquery.min.js"><\/script>')</script>
+-->
+<script src="/js/jquery-3.2.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/chart.bundle.js"></script>
+<script>
+    /*
+    var STATUS = [
+        "signing",
+        "waiting4instruct",
+        "instructing",
+        "waiting4survey",
+        "surveying",
+        "waiting4decision",
+        "deciding",
+        "waiting4displaying",
+        "displaying",
+        "finished"];
+    */
+    var _stop = false;
+    var d_pattern;
+    var d_action;
+    var d_action_all;
+    //var localStorage._stage;
+    $(document).ready(function() {
+        $.getJSON("/servlet/init", {}, function (json, state) {
+            if (!localStorage._version || JSON.parse(localStorage._version) != json.version) {
+                localStorage.clear();
+                localStorage._version = JSON.stringify(json.version);
+            }
+
+            // if (!sessionStorage._group || !sessionStorage._code || !sessionStorage._role) {
+            //     // localStorage._stage = 0;
+            // } else {
+            //     $("#player_code").text(sessionStorage._code);
+            //     if (sessionStorage._role == "A")
+            //         $("#player_role").addClass("label-primary");
+            //
+            //     else
+            //         $("#player_role").addClass("label-danger");
+            //     $("#player_role").text(sessionStorage._role);
+            // }
+
+            if ((sessionStorage._group == null) && (sessionStorage._code == null)) {
+                load_signin();
+            }
+
+            if ((sessionStorage._group != null) && (sessionStorage._code != null)) {
+                $.ajax({
+                    type: "POST",
+                    url: "/servlet/waiting4main",
+                    data: {group: sessionStorage._group, code: sessionStorage._code, stage: 0},
+                    success: function (json) {
+                        switch (parseInt(json.d_status)) {
+                            case 0:
+                                load_signin();
+                                break;
+                            case 1:
+                                waiting4instruct();
+                                break;
+                            case 2:
+                                load_instruct();
+                                break;
+                            case 3:
+                                waiting4survey();
+                                break;
+                            case 4:
+                                load_survey();
+                                break;
+                            case 5:
+                                waiting4communication();
+                                break;
+                            case 6:
+                                load_communication();
+                                break;
+                            case 7:
+                                waiting4decision();
+                                break;
+                            case 8:
+                                load_decision();
+                                break;
+                            case 9:
+                                waiting4redistribution();
+                                break;
+                            case 10:
+                                load_redistribution();
+                                break;
+                            case 11:
+                                waiting4process();
+                                break;
+                            case 12:
+                                load_process();
+                                break;
+                            case 13:
+                                waiting4next();
+                                break;
+                            case 14:
+                                waiting4questionnaire();
+                                break;
+                            case 15:
+                                load_questionnaire();
+                                break;
+                            case 16:
+                                ending();
+                                break;
+                        }
+
+                    }
+                });
+            }
+        });
+    });
+
+    function countdown(duration, ffcn) {
+        var countdown = window.setInterval(function() {
+            <!--将所有本地时间同步为北京时区时间-->
+            var d = new Date();
+            var currentDate = new Date();
+            var tmpHours = currentDate.getHours();
+            var time_zone = -d.getTimezoneOffset() / 60;
+            if (time_zone < 0) {
+                time_zone = Math.abs(time_zone) + 8; currentDate.setHours(tmpHours + time_zone);
+            } else {
+                time_zone -= 8; currentDate.setHours(tmpHours - time_zone);
+            }
+
+            if(localStorage._flag == 1)
+            {
+                localStorage._deadlineTime = new Date(currentDate.getTime() + duration + 1000);
+            }
+            localStorage._flag = 0;
+
+            var d2 = new Date(localStorage._deadlineTime);
+            var d1 = new Date();
+            var dur = d2.getTime() - d1.getTime();
+            var duration_time = parseInt(dur / 1000);
+            $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 21, dur: duration_time}, success: function (json) {}});
+
+            if(duration_time<0){duration_time=0;}
+            $("#durationTime").text(duration_time);
+            var delta = dur;
+            if (duration_time == 0 || _stop) {
+                window.clearInterval(countdown);
+                _stop = false;
+                ffcn();
+            } else {
+                var h = Math.floor(delta/(60 * 60 * 1000));
+                var m = Math.floor(delta/(60 * 1000)) - h * 60;
+                var s = Math.floor(delta/(1000)) - h * 3600 - m * 60;
+                $("#timer").text(((h<10)?"0":"") + h + ":" + ((m<10)?"0":"") + m + ":" + ((s<10)?"0":"") + s);
+                if (h == 0 && m == 0 && s%2 == 0) {
+                    $("#timer").attr("style", "color: red;");
+                } else {
+                    $("#timer").attr("style", "color: white;");
+                }
+            }
+            duration = duration - 1000;
+        }, 1000);
+    }
+
+    /**
+     * 加载登录页面，登录页面负责执行登录，如果登录成功，则在本地记录用户的_code, _role和_group三个关键信息。
+     */
+    function load_signin() {
+        console.log('load_signin');
+        //localStorage._stage = 0;
+        $("#major").empty();
+        $("#major").load("0.signin.html");
+        localStorage._flag = 1;
+    }
+    
+    function addCode_Role() {
+        $("#player_code").text(sessionStorage._code);
+        if (sessionStorage._role == "A")
+            $("#player_role").addClass("label-primary");
+        else
+            $("#player_role").addClass("label-danger");
+        $("#player_role").text(sessionStorage._role);
+    }
+
+    function waiting4instruct() {
+        addCode_Role();
+        console.log('waiting4instruct');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 1}, success: function (json) {}});
+        //localStorage._stage = 1;
+        $("#player_code").text(sessionStorage._code);
+        if (sessionStorage._role == "A")
+            $("#player_role").addClass("label-primary");//判断player属于哪个sector显示不同颜色
+        else
+            $("#player_role").addClass("label-danger");
+        $("#player_role").text(sessionStorage._role);
+        load_pausing("Waiting for other players w4instruct");
+
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 1},
+            success: function (json) {
+                <!--从后台传输过来的值-->
+                var i_slide = JSON.stringify(json.slide);
+                //localStorage._deadline = JSON.stringify(json.deadline);
+                localStorage._duration = JSON.stringify(json.duration_instruct);
+                <!--如果当前的时间是大于deadline的话，则进入等待-->
+                <!--此处应当修改为json.duration==0来作为进入等待的判定条件，以下皆是如此-->
+                if (json.duration_instruct == 0 || !i_slide || i_slide.trim().length <= 0) {
+                    waiting4survey();
+                } else {
+                    load_instruct();
+                }
+            },
+            error: function (jqXHR) {
+                alert("发生了点小错误，请尝试刷新或者重新登录" + jqXHR.status);
+            }
+        });
+
+
+    }
+
+    function load_instruct() {
+        addCode_Role();
+        console.log('load_instruct');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 2}, success: function (json) {}});
+        //localStorage._stage = 2;
+        $("#major").empty();
+        $("#major").load("1.instruction.html");
+
+        var dr = JSON.parse(localStorage._duration);
+        console.log(dr);
+        countdown(dr, function() {
+            waiting4survey();
+            localStorage._flag = 1;
+        });
+    }
+
+    function waiting4survey() {
+        addCode_Role();
+        console.log('waiting4survey');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 3}, success: function (json) {}});
+        //localStorage._stage = 3;
+        localStorage._survey = 0;
+        load_pausing("Waiting for other players w4survey");
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, type: 0, stage: 3},
+            success: function (json) {
+                //localStorage.s_question = JSON.stringify(json.question);
+                localStorage.s_current = 0;
+                var aws = new Array(json.question.length);
+                for (var i = 0; i < json.question.length; i++)
+                    aws[i] = "";
+                localStorage.s_answer = JSON.stringify(aws);
+                //localStorage._deadline = json.deadline;
+                localStorage._duration = json.duration_target;
+                // localStorage.s_threshold = json.threshold;
+                // localStorage.s_full = json.full;
+                if (json.duration_target == 0 || json.question.length <= 0) {
+                    waiting4communication();
+                } else {
+                    load_survey();
+                }
+            }
+        });
+    }
+
+    function load_survey() {
+        addCode_Role();
+        console.log('load_survey');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 4}, success: function (json) {}});
+        //localStorage._stage = 4;
+        $("#major").empty();
+        $("#major").load("2.survey.html");
+        var dr = JSON.parse(localStorage._duration);
+        countdown(dr, function() {
+            waiting4communication();
+            localStorage._flag = 1;
+        });
+    }
+
+    function waiting4communication() {
+        addCode_Role();
+        console.log('waiting4communication');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 5}, success: function (json) {}});
+        //localStorage._stage = 5;
+        load_pausing("Waiting for other players w4communication");
+        // 避免重复提交问卷答案
+        var sdat;
+        sdat = {group: sessionStorage._group, code: sessionStorage._code, answer: localStorage.s_answer, stage: 5};
+
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            //dataType: "json",
+            data: sdat,
+            success: function (json) {
+                // 正式实验流程
+                // localStorage.d_current = json.current;
+                if (json.current == 0) {
+                    //localStorage.d_round = json.round;
+                    //localStorage.d_inherit = json.inherit;
+                    //localStorage.d_initial = JSON.stringify(json.initial);
+                    d_pattern = JSON.stringify(new Array(json.round));
+                    //$.getJSON("/servlet/waiting4main", {group: sessionStorage._group, code: sessionStorage._code, stage: 17, pattern: d_pattern}, function (json, state) {});
+                    $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 17, pattern: d_pattern}, success: function (json) {}});
+                    d_action = JSON.stringify(new Array(json.round));
+                    $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 18, action : d_action}, success: function (json) {}});
+                    d_action_all = JSON.stringify(new Array(json.round));
+                    $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 19, action_all : d_action_all}, success: function (json) {}});
+                    //localStorage.d_model = JSON.stringify(json.model);
+                    //localStorage.d_players = JSON.stringify(json.all_players);
+                    //localStorage.d_content = json.d_content;
+                    // if (json.hasOwnProperty('r_content'))
+                    //     localStorage.r_content = json.r_content;
+                    //localStorage.p_content = json.p_content;
+                    //localStorage.e_content = json.e_content;
+                }
+                // 决定是否有通讯环节
+                //localStorage._deadline = json.deadline;
+                var communicable = JSON.stringify(json.communicable);
+                localStorage._duration = json.duration_communication;
+                if (json.duration_communication == 0 || !json.communicable) {
+                    waiting4decision();
+                } else {
+                    load_communication();
+                }
+            }
+        });
+    }
+
+    function load_communication() {
+        addCode_Role();
+        console.log('load_communication');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 6}, success: function (json) {}});
+        //localStorage._stage = 6;
+        localStorage._chat = 1;
+        $("#major").empty();
+        $("#major").load("3.chat.html");
+
+        var dr = JSON.parse(localStorage._duration);
+        countdown(dr, function() {
+            waiting4decision();
+            localStorage._flag = 1;
+        });
+    }
+
+    function waiting4decision() {
+        addCode_Role();
+        console.log('waiting4decision');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 7}, success: function (json) {}});
+        //localStorage._stage = 7;
+        localStorage._chat = 0;
+        load_pausing("Waiting for other players w4decision");
+
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 7},
+            success: function (json) {
+                // localStorage.d_current = JSON.stringify(json.current_decision);
+                //localStorage._deadline = JSON.stringify(json.deadline);
+                localStorage._duration = json.duration_decision;
+                // 初始化决策变量
+                var rd = json.current_decision;
+                //var myActions = JSON.parse(d_action);
+                var myActions = JSON.parse(json.d_action);
+                //var allPlayers = JSON.parse(localStorage.d_players);
+                var allPlayers = json.all_players;
+                //var model = JSON.parse(localStorage.d_model);
+                var model = json.model;
+                var K = model.K;
+                if (!myActions[rd]) {
+                    myActions[rd] = new Array(2);
+                    var currAction = new Array(K);
+                    for (var i = 0; i < K; i++) {
+                        currAction[i] = new Array(K);
+                        for (var j = 0; j < K; j++) {
+                            currAction[i][j] = 0;
+                        }
+                    }
+                    myActions[rd][0] = currAction;
+                    myActions[rd][1] = {};
+                    for (var i = 0; i < allPlayers.length; i++) {
+                        myActions[rd][1][allPlayers[i].code] = 0;
+                    }
+                    d_action = JSON.stringify(myActions);
+                    $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 18, action : d_action}, success: function (json) {}});
+                }
+                // 决定是否有决策环节，没有决策，肯定没有再分配，也没有显示环节
+                if (json.duration_decision == 0)
+                    waiting4next();
+                else
+                    load_decision();
+            }
+        });
+    }
+
+    function load_decision() {
+        addCode_Role();
+        console.log('load_decision');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 8}, success: function (json) {}});
+        //localStorage._stage = 8;
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 8},
+            success: function (json) {
+                $("#major").empty();
+                //$("#major").load(localStorage.d_content);
+                $("#major").load(json.d_content);
+                var dr = JSON.parse(localStorage._duration);
+                countdown(dr, function () {
+                    waiting4redistribution();
+                    localStorage._flag = 1;
+                });
+            }
+        });
+    }
+
+    //参考此处的pattern和action传输的方式，先转换成json格式
+    function waiting4redistribution() {
+        addCode_Role();
+        console.log('waiting4redistribution');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 9}, success: function (json) {}});
+        //localStorage._stage = 9;
+        load_pausing("Waiting for other players w4distribution");
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 8},
+            success: function (json) {
+                //var c = parseInt(localStorage.d_current);
+                var c = parseInt(json.current);
+                //var cact = JSON.parse(d_action)[c];
+                var cact = JSON.parse(json.d_action)[c];
+                $.ajax({
+                    type: "POST",
+                    url: "/servlet/waiting4main",
+                    data: {group: sessionStorage._group, code: sessionStorage._code, action : JSON.stringify(cact), stage: 9},
+                    success: function (json) {
+                        //var pattern = JSON.parse(d_pattern);
+                        var pattern = JSON.parse(json.d_pattern);
+                        pattern[c] = json.last_redistribution;
+                        d_pattern = JSON.stringify(pattern);
+                        //$.getJSON("/servlet/waiting4main", {group: sessionStorage._group, code: sessionStorage._code, stage: 17, pattern: d_pattern}, function (json, state) {});
+                        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 17, pattern: d_pattern}, success: function (json) {}});
+                        //var alla = JSON.parse(d_action_all);
+                        var alla = JSON.parse(json.d_action_all);
+                        alla[c] = json.all_redistribution;
+                        d_action_all = JSON.stringify(alla);
+                        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 19, action_all : d_action_all}, success: function (json) {}});
+                        //localStorage._deadline = json.deadline;
+                        localStorage._duration = json.duration_redistribution;
+                        // 是否有再分配环节
+                        //var model = JSON.parse(localStorage.d_model);
+                        var model = json.model;
+                        if (model.punishment_type <= 0 || json.duration_redistribution == 0) {
+                            waiting4process();
+                        } else {
+                            load_redistribution();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    function load_redistribution() {
+        addCode_Role();
+        console.log('load_redistribution');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 10}, success: function (json) {}});
+        //localStorage._stage = 10;
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 10},
+            success: function (json) {
+                if (json.hasOwnProperty('r_content'))
+                    var r_content = json.r_content;
+                $("#major").empty();
+                //$("#major").load(localStorage.r_content);
+                $("#major").load(r_content);
+                var dr = JSON.parse(localStorage._duration);
+                countdown(dr, function () {
+                    waiting4process();
+                    localStorage._flag = 1;
+                });
+            }
+        });
+    }
+
+    function waiting4process() {
+        addCode_Role();
+        console.log('waiting4process');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 11}, success: function (json) {}});
+        //localStorage._stage = 11;
+        load_pausing("Waiting for other players w4process");
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 12},
+            success: function (json) {
+                //var c = parseInt(localStorage.d_current);
+                var c = parseInt(json.current);
+                //var cact = JSON.parse(d_action)[c];
+                var cact = JSON.parse(json.d_action)[c];
+                //$.getJSON("/servlet/waiting4main",{group: sessionStorage._group, code: sessionStorage._code, action: JSON.stringify(cact), stage: localStorage._stage}, function (json, state) {
+                $.ajax({
+                    type: "POST",
+                    url: "/servlet/waiting4main",
+                    data: {group: sessionStorage._group, code: sessionStorage._code, action: JSON.stringify(cact), stage: 11},
+                    success: function (json) {
+                        //var pattern = JSON.parse(d_pattern);
+                        var pattern = JSON.parse(json.d_pattern);
+                        pattern[c] = json.last_process;
+                        d_pattern = JSON.stringify(pattern);
+                        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 17, pattern: d_pattern}, success: function (json) {}});
+                        //var alla = JSON.parse(d_action_all);
+                        var alla = JSON.parse(json.d_action_all);
+                        alla[c] = json.all_process;
+                        d_action_all = JSON.stringify(alla);
+                        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 19, action_all : d_action_all}, success: function (json) {}});
+                        //localStorage._deadline = json.deadline;
+                        localStorage._duration = json.duration_process;
+                        console.log("waiting4process " + json.deadline + " - " + c);
+                        if (json.duration_process == 0)
+                            waiting4next();
+                        else
+                            load_process();
+                    }
+                });
+            }
+        });
+    }
+
+    function load_process() {
+        addCode_Role();
+        console.log('load_process');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 12}, success: function (json) {}});
+        //localStorage._stage = 12;
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, stage: 12},
+            success: function (json) {
+                $("#major").empty();
+                //$("#major").load(localStorage.p_content);
+                $("#major").load(json.p_content);
+                var dr = JSON.parse(localStorage._duration);
+                countdown(dr, function () {
+                    waiting4next();
+                    localStorage._flag = 1;
+                });
+            }
+        });
+    }
+
+    function waiting4next() {
+        addCode_Role();
+        console.log('waiting4next');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 13}, success: function (json) {}});
+        //localStorage._stage = 13;
+        load_pausing("Waiting for other players w4next");
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group : sessionStorage._group, code : sessionStorage._code, stage : 13},
+            success: function (json) {
+                //localStorage._duration = json.duration;
+                if (parseInt(json.current) < json.round - 1) {
+                    waiting4communication();
+                } else {
+                    waiting4questionnaire();
+                    // load_pausing("OVER!");
+                }
+            }
+        });
+    }
+
+    function waiting4questionnaire() {
+        addCode_Role();
+        console.log('waiting4questionnaire');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 14}, success: function (json) {}});
+        //localStorage._stage = 14;
+        load_pausing("Waiting for other players w4questionnaire");
+        $.ajax({
+            type: "POST",
+            url: "/servlet/waiting4main",
+            data: {group: sessionStorage._group, code: sessionStorage._code, type: 1, stage: 14},
+            success: function (json) {
+                //localStorage.s_question = JSON.stringify(json.question);
+                localStorage.s_current = 0;
+                var aws = new Array(json.question.length);
+                for (var i = 0; i < json.question.length; i++)
+                    aws[i] = "";
+                localStorage.s_answer = JSON.stringify(aws);
+                //localStorage._deadline = json.deadline;
+                localStorage._duration = json.duration_target;
+                if (json.duration_target == 0 || json.question.length <= 0) {
+                    ending();
+                } else {
+                    load_questionnaire();
+                }
+            }
+        });
+    }
+
+    function load_questionnaire() {
+        addCode_Role();
+        console.log('load_questionnaire');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 15}, success: function (json) {}});
+        //localStorage._stage = 15;
+        localStorage._survey = 1;
+        $("#major").empty();
+        $("#major").load("2.survey.html");
+        var dr = JSON.parse(localStorage._duration);
+        countdown(dr, function() {
+            ending();
+            localStorage._flag = 1;
+        });
+    }
+
+    function ending() {
+        addCode_Role();
+        console.log('ending');
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group: sessionStorage._group, code: sessionStorage._code, stage: 20, status: 16}, success: function (json) {}});
+        //localStorage._stage = 16;
+        $.ajax({type: "POST", url: "/servlet/waiting4main", data: {group : sessionStorage._group, code : sessionStorage._code, stage : 16},
+            success: function (json) {
+
+                $("#major").empty();
+                //$("#major").load(localStorage.e_content);
+                $("#major").load(json.e_content);
+                //$.getJSON("/servlet/finish", {group: sessionStorage._group, code: sessionStorage._code, result: localStorage.s_answer}, function (json, state) {});
+            }
+        });
+
+        $.getJSON("/servlet/finish", {group: sessionStorage._group, code: sessionStorage._code, result: localStorage.s_answer}, function (json, state) {});
+
+    }
+
+    function load_pausing(txt) {
+        $("#major").empty();
+        $("<div class='text-center'><p><h2>" + txt + "</h2></p></div>").appendTo("#major");
+    }
+
+    function strip(num) {
+        return parseFloat(num.toPrecision(5));
+    }
+</script>
+</body>
+</html>

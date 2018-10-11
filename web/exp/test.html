@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../images/logo64.png">
+    <title>EPIR - Experimental Platform of Interacting Resources</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/epic.css" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+            jax: ["input/TeX", "output/HTML-CSS"],
+            extensions: ["tex2jax.js"],
+            tex2jax: {inlineMath: [["$","$"],["\\(","\\)"]]},
+        });
+        MathJax.Hub.Register.StartupHook("onLoad",function () {
+            MathJax.Hub.Config({
+                elements: document.querySelectorAll(".mathjax"),
+            });
+        });
+    </script>
+    <!--<script type="text/javascript" src="./mathjax/MathJax.js?config=TeX-AMS_HTML-full"></script>-->
+    <!--
+    <script type="text/javascript"
+            src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    -->
+    <script type="text/javascript"
+            src="/js/mathjax/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+    <title>Title</title>
+</head>
+<body>
+    <div id="major" class="container" width="100%">
+        <div>
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8"><h1>Communication (<span id="curr_round"></span>/<span id="total_round"></span>)</h1></div>
+                <div class="col-md-2"></div>
+            </div>
+            <div class="row">
+                <div class="col-md-2"></div>
+                <div class="col-md-8"><p>Chat with your partners.</p></div>
+                <div class="col-md-2"></div>
+            </div>
+            <hr>
+        </div>
+        <div class="row">
+            <div class="col-md-2"/>
+            <div class="col-md-8">
+                <div>
+                    <center>
+                        <table class="table-bordered table-condensed table-striped">
+                            <tbody>
+                            <tr>
+                                <td colspan="5" class="text-center"><strong>Last Round</strong></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 3px">Harvested A</td>
+                                <td style="padding: 3px">Harvested B</td>
+                                <td style="padding: 3px">My harvest</td>
+                                <td style="padding: 3px">My cost</td>
+                                <td style="padding: 3px">My redistributed</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 3px"><span id="last_hA">0</span></td>
+                                <td style="padding: 3px"><span id="last_hB">0</span></td>
+                                <td style="padding: 3px"><span id="last_my">0</span></td>
+                                <td style="padding: 3px"><span id="last_ct">0</span></td>
+                                <td style="padding: 3px"><span id="last_re">0</span></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </center>
+                </div>
+                <div class="panel-body">
+                    <div id="msgWindow" style="overflow-y: auto; font-size: 10.5pt; border: 1px solid; border-color: #122b40; height: 200px; width: 100%; background-color: gainsboro; padding: 5pt 5pt 5pt 5pt"></div>
+                    <p></p>
+                    <table>
+                        <tr>
+                            <td width="20%" style="padding: 3px">
+                                <select id="txt_to" class="form-control">
+                                </select>
+                            </td>
+                            <td width="15%" style="padding: 3px">
+                                <select id="txt_emoji" class="form-control" style="display: none">
+                                    <option value="0" selected></option>
+                                    <option value="1">🙂</option>
+                                    <option value="2">🙁</option>
+                                    <option value="3">😠</option>
+                                    <option value="4">😢</option>
+                                    <option value="5">👍</option>
+                                    <option value="6">👎</option>
+                                    <option value="7">🤝</option>
+                                </select>
+                            </td>
+                            <td style="padding: 3px">
+                                <div id="div_limited" style="display: none">
+                                    <select id="txt_limited" class="form-control">
+                                        <option selected></option>
+                                    </select>
+                                </div>
+                                <div id="div_free" style="display: none">
+                                    <input id="txt_free" type="text" class="form-control" size="50" onkeypress="if(event.keyCode==13) {sendMsg(); return false;}"/>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                    <!--
+                    <div class="row">
+                        <div class="col-md-3">
+                            <span><strong>To</strong></span>
+                            <select id="txt_to" class="form-control">
+                            </select>
+                        </div>
+                        <div id="div_emoji" class="col-md-2" style="display: none">
+                            <span><strong>Emoji</strong></span>
+                            <select id="txt_emoji" class="form-control">
+                                <option selected></option>
+                                <option>🙂</option>
+                                <option>🙁</option>
+                                <option>😠</option>
+                                <option>😢</option>
+                                <option>👍</option>
+                                <option>👎</option>
+                                <option>🤝</option>
+                            </select>
+                        </div>
+                        <div class="col-md-7">
+                            <div id="div_limited" style="display: none">
+                                <span><strong>Limited text</strong></span>
+                                <select id="txt_limited" class="form-control">
+                                    <option selected></option>
+                                </select>
+                            </div>
+                            <div id="div_free" style="display: none">
+                                <span><strong>Text</strong></span>
+                                <input id="txt_free" type="text" class="form-control" size="50" onkeypress="if(event.keyCode==13) {sendMsg(); return false;}"/>
+                            </div>
+                        </div>
+                    </div>
+                    -->
+                    <p></p>
+                    <p class="text-right">
+                        <button type="button" class="btn btn-primary" onclick="sendMsg(); return false;">Send</button>
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-2"/>
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="/js/jquery-3.2.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script src="/js/chart.bundle.js"></script>
+
+<script>
+    $(document).ready(function () {
+        setInterval(function(){
+            $("#msgWindow").append("<p style='line-height: 115%'>AAAAAA</p>");
+
+            /*
+            if ($("#msgWindow > p").length > 10)
+                // $("#msgWindow > p:last")[0].scrollIntoView();
+                $("#msgWindow")[0].scrollTop = $("#msgWindow")[0].scrollHeight;
+            */
+
+            // 收到消息签滚动条是否在底部
+            var toBottom = false;
+            var nDivHeight = $("#msgWindow").height();
+            var nScrollHeight = $("#msgWindow")[0].scrollHeight;
+            var nScrollTop = $("#msgWindow")[0].scrollTop;
+            console.log(nScrollTop + ", " + nDivHeight + ", " + nScrollHeight);
+            if (nScrollTop + nDivHeight >= nScrollHeight * 0.95)
+                toBottom = true;
+            else
+                toBottom = false;
+            if (toBottom) {
+                // $("#msgWindow > p:last")[0].scrollIntoView();
+                $("#msgWindow")[0].scrollTop = $("#msgWindow")[0].scrollHeight;
+            }
+
+        }, 1000);
+    });
+</script>

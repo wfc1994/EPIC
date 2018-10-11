@@ -1,0 +1,73 @@
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<script type="text/javascript" src="/js/ckeditor/ckeditor.js"/>
+<div class="row">
+    <div class="col-md-4">
+        <h3>Guide</h3>
+        <p class="text-justify">
+            In this panel, you can use a rich-text editor (<a href="https://ckeditor.com/" target="view_window">CKEditor</a>) inputting your full instruction to players. Your can use text, table, list, image, and mathematical formula to introduce the experimental system and social-ecological system model in the special instruction stage before the experiment. If you want to insert images into the instruction, you need firstly <a href="" onclick="to_upload(); return false;">upload images</a> into EPIC and copy the URL of the uploaded image into the CKEditor.
+        </p>
+        <p class="text-justify">
+            Furthermore, your also need provide a concise instruction (text only), which only displays during the decision and redistribution stage.
+        </p>
+    </div>
+    <div class="col-md-8">
+        <div class="conf-content form-inline text-left">
+            <p><strong>Full instruction</strong></p>
+            <textarea id="full_text" cols="20" rows="2" class="ckeditor"></textarea>
+        </div>
+        <hr/>
+        <div>
+            <p><strong>Concise instruction</strong></p>
+            <textarea id="conc_text" class="form-control" rows="10"></textarea>
+        </div>
+        <br>
+        <p class="text-left">
+            <button class="btn btn-default btn-sm" onclick="set_instruction(); return false;">Save</button>
+        </p>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        //放入数据
+        var editor = CKEDITOR.instances.full_text;
+        if (editor) {
+            editor.destroy(true);
+        }
+        CKEDITOR.replace('full_text');
+
+        if (!!localStorage.conf_instruction_full) {
+            CKEDITOR.instances.full_text.setData(JSON.parse(localStorage.conf_instruction_full));
+        }
+
+        if (!!localStorage.conf_instruction_concise) {
+            $("#conc_text").val(JSON.parse(localStorage.conf_instruction_concise));
+        }
+    });
+
+    //保存的方法
+    function set_instruction() {
+        var ctxt = $("#conc_text").val().trim();
+        if (!ctxt || ctxt.length <= 0) {
+            alert("Concise instruction is necessary!");
+            return;
+        }
+        localStorage.conf_instruction_full = JSON.stringify(CKEDITOR.instances.full_text.getData());
+        localStorage.conf_instruction_concise = JSON.stringify($("#conc_text").val());
+        alert("Saved");
+    }
+</script>

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<!--
+  ~ Copyright 2017 Yong Min
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../images/logo64.png">
+    <title>EPIC - Experimental Platform of Interacting Commons</title>
+    <!-- Bootstrap core CSS -->
+    <link href="../css/bootstrap.css" rel="stylesheet">
+    <link href="../css/epic.css" rel="stylesheet">
+</head>
+<!-- Body -->
+<body>
+<!-- Fixed navbar -->
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#"><img src="../images/txtlogo64.png" height="40"></a>
+        </div>
+    </div>
+</nav>
+<!-- Container -->
+<div id="mainbody" class="container">
+    <div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8"><h1>Data</h1></div>
+            <div class="col-md-2"></div>
+        </div>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8"><p>Download your experimental data</p></div>
+            <div class="col-md-2"></div>
+        </div>
+        <hr>
+    </div>
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <p>
+            <div class="row">
+                <div class="col-md-4">Experiment</div>
+                <div class="col-md-8">
+                    <select id="db_list" class="input-sm" onchange="dbselected();">
+                    </select>
+                </div>
+            </div>
+            </p>
+            <p>
+            <div class="row">
+                <div class="col-md-4">Game</div>
+                <div class="col-md-8">
+                    <select id="game_list" class="input-sm">
+                    </select>
+                </div>
+            </div>
+            </p>
+            <p>
+            <div class="row">
+                <div class="col-md-4">Format</div>
+                <div class="col-md-8">
+                    <select id="fmt_list" class="input-sm">
+                        <option value="0">Excel</option>
+                        <option value="1">Json</option>
+                        <option value="2">csv (in zip)</option>
+                    </select>
+                </div>
+            </div>
+            </p>
+            <p>
+            <div class="row">
+                <div class="col-md-4"></div>
+                <div class="col-md-8 text-center">
+                    <label class="btn btn-primary btn-sm" onclick="data_download(); return false;">Download</label>
+                </div>
+            </div>
+            </p>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+    <form id="file_form" style="display:none;" method="get" action="/servlet/admin/down_gm">
+        <input id="file_db" type="hidden" name="db" value=""/>
+        <input id="file_game" type="hidden" name="game" value=""/>
+        <input id="file_type" type="hidden" name="type" value=""/>
+    </form>
+</div>
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <p class="text-muted text-right">
+            YONG MIN | <a href="http://www.zjut.edu.cn/" target="view_window">Zhejiang
+            Univeristy of Technology</a> | version 1 | <a href="mailto: myong@zjut.edu.cn">myong@zjut.edu.cn</a>
+        </p>
+    </div>
+</footer>
+<!-- Bootstrap core JavaScript -->
+<!--
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="./js/jquery.min.js"><\/script>')</script>
+-->
+<script src="/js/jquery-3.2.1.min.js"></script>
+<script src="/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $.getJSON("/servlet/admin/init", {code : sessionStorage._code}, function(json, state) {
+            if (json.status == 0) {
+                window.location.href="index.html";
+                localStorage.clear();
+                sessionStorage.clear();
+            }
+        });
+
+        $("#db_list").empty();
+        $("<option selected disabled></option>").appendTo("#db_list");
+        $.getJSON("/servlet/admin/list_db", {code : sessionStorage._code}, function(json, state) {
+            if (!!json.dbs) {
+                for (var i = 0; i < json.dbs.length; i++) {
+                    $("<option>" + json.dbs[i] + "</option>").appendTo("#db_list");
+                }
+            }
+        });
+    });
+
+    function data_download() {
+        var db = $("#db_list").find("option:selected").text();
+        var game = $("#game_list").find("option:selected").text();
+        var type = $("#fmt_list").find("option:selected").val();
+        $("#file_db").val(db);
+        $("#file_game").val(game);
+        $("#file_type").val(type);
+        $("#file_form").submit();
+    }
+
+    function dbselected() {
+        var db = $("#db_list").find("option:selected").text();
+        $.getJSON("/servlet/admin/list_gm", {code : sessionStorage._code, db : db}, function(json, state) {
+            $("#game_list").empty();
+            $("<option selected disabled></option>").appendTo("#game_list");
+            if (!!json.games) {
+                for (var i = 0; i < json.games.length; i++) {
+                    $("<option>" + json.games[i] + "</option>").appendTo("#game_list");
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
